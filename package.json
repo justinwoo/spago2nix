@@ -1,0 +1,17 @@
+{
+  "name": "spago2nix",
+  "version": "0.1.0",
+  "description": "",
+  "bin": {
+    "spago2nix": "bin/index.js"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "mkbin": "spago bundle-app -t bin/output.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Justin Woo",
+  "license": "MIT"
+}
