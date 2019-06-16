@@ -22,12 +22,11 @@ import Simple.JSON.Utils (printMultipleErrors)
 spagoPackagesNix :: String
 spagoPackagesNix = "spago-packages.nix"
 
--- | Run a command with args that is detached
+-- | Run a command with args
 runCommand :: { cmd :: String, args :: Array String } -> Aff Unit
 runCommand {cmd, args} = Aff.makeAff \cb -> do
   output <- CP.spawn cmd args CP.defaultSpawnOptions
-    { detached = true
-    , stdio = CP.inherit
+    { stdio = CP.inherit
     }
   CP.onExit output \_ -> do
     cb $ Right unit

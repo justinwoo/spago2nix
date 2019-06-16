@@ -6218,7 +6218,7 @@ var PS = {};
               contents: Simple_JSON.writeImpl(Simple_JSON.writeForeignString)(v.value0)
           });
       };
-      throw new Error("Failed pattern match at Core (line 122, column 1 - line 124, column 84): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Core (line 121, column 1 - line 123, column 84): " + [ v.constructor.name ]);
   });
   var spagoPackagesNix = "spago-packages.nix";
   var showVersion = Data_Show.showString;
@@ -6230,7 +6230,7 @@ var PS = {};
                   cwd: Node_ChildProcess.defaultSpawnOptions.cwd,
                   stdio: Node_ChildProcess.inherit,
                   env: Node_ChildProcess.defaultSpawnOptions.env,
-                  detached: true,
+                  detached: Node_ChildProcess.defaultSpawnOptions.detached,
                   uid: Node_ChildProcess.defaultSpawnOptions.uid,
                   gid: Node_ChildProcess.defaultSpawnOptions.gid
               })();
@@ -6283,7 +6283,7 @@ var PS = {};
       if (x instanceof Local) {
           return new Data_Generic_Rep.Inr(x.value0);
       };
-      throw new Error("Failed pattern match at Core (line 143, column 1 - line 143, column 46): " + [ x.constructor.name ]);
+      throw new Error("Failed pattern match at Core (line 142, column 1 - line 142, column 46): " + [ x.constructor.name ]);
   }, function (x) {
       if (x instanceof Data_Generic_Rep.Inl) {
           return new Remote(x.value0);
@@ -6291,7 +6291,7 @@ var PS = {};
       if (x instanceof Data_Generic_Rep.Inr) {
           return new Local(x.value0);
       };
-      throw new Error("Failed pattern match at Core (line 143, column 1 - line 143, column 46): " + [ x.constructor.name ]);
+      throw new Error("Failed pattern match at Core (line 142, column 1 - line 142, column 46): " + [ x.constructor.name ]);
   });
   var showRepo = new Data_Show.Show(Data_Generic_Rep_Show.genericShow(genericRepo)(Data_Generic_Rep_Show.genericShowSum(Data_Generic_Rep_Show.genericShowConstructor(Data_Generic_Rep_Show.genericShowArgsArgument(showURL))(new Data_Symbol.IsSymbol(function () {
       return "Remote";
@@ -6320,7 +6320,7 @@ var PS = {};
       if (x instanceof FileContentsCorrupted) {
           return new Data_Generic_Rep.Inr(new Data_Generic_Rep.Inr(new Data_Generic_Rep.Inr(new Data_Generic_Rep.Inr(new Data_Generic_Rep.Inr(new Data_Generic_Rep.Inr(new Data_Generic_Rep.Product(x.value0, new Data_Generic_Rep.Product(x.value1, x.value2))))))));
       };
-      throw new Error("Failed pattern match at Core (line 101, column 1 - line 101, column 52): " + [ x.constructor.name ]);
+      throw new Error("Failed pattern match at Core (line 100, column 1 - line 100, column 52): " + [ x.constructor.name ]);
   }, function (x) {
       if (x instanceof Data_Generic_Rep.Inl) {
           return new SpagoRunError(x.value0);
@@ -6343,7 +6343,7 @@ var PS = {};
       if (x instanceof Data_Generic_Rep.Inr && (x.value0 instanceof Data_Generic_Rep.Inr && (x.value0.value0 instanceof Data_Generic_Rep.Inr && (x.value0.value0.value0 instanceof Data_Generic_Rep.Inr && (x.value0.value0.value0.value0 instanceof Data_Generic_Rep.Inr && x.value0.value0.value0.value0.value0 instanceof Data_Generic_Rep.Inr))))) {
           return new FileContentsCorrupted(x.value0.value0.value0.value0.value0.value0.value0, x.value0.value0.value0.value0.value0.value0.value1.value0, x.value0.value0.value0.value0.value0.value0.value1.value1);
       };
-      throw new Error("Failed pattern match at Core (line 101, column 1 - line 101, column 52): " + [ x.constructor.name ]);
+      throw new Error("Failed pattern match at Core (line 100, column 1 - line 100, column 52): " + [ x.constructor.name ]);
   });
   var showMyError = new Data_Show.Show(Data_Generic_Rep_Show.genericShow(genericMyError)(Data_Generic_Rep_Show.genericShowSum(Data_Generic_Rep_Show.genericShowConstructor(Data_Generic_Rep_Show.genericShowArgsArgument(Data_Show.showString))(new Data_Symbol.IsSymbol(function () {
       return "SpagoRunError";
@@ -6373,7 +6373,7 @@ var PS = {};
       if (x instanceof Fetched) {
           return new Data_Generic_Rep.Inr(x.value0);
       };
-      throw new Error("Failed pattern match at Core (line 146, column 1 - line 146, column 60): " + [ x.constructor.name ]);
+      throw new Error("Failed pattern match at Core (line 145, column 1 - line 145, column 60): " + [ x.constructor.name ]);
   }, function (x) {
       if (x instanceof Data_Generic_Rep.Inl) {
           return new CantFetchLocal(x.value0);
@@ -6381,7 +6381,7 @@ var PS = {};
       if (x instanceof Data_Generic_Rep.Inr) {
           return new Fetched(x.value0);
       };
-      throw new Error("Failed pattern match at Core (line 146, column 1 - line 146, column 60): " + [ x.constructor.name ]);
+      throw new Error("Failed pattern match at Core (line 145, column 1 - line 145, column 60): " + [ x.constructor.name ]);
   });
   var readForeignFetchResult = new Simple_JSON.ReadForeign((function () {
       var $95 = Data_Functor.map(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(Kishimen.variantToGenericSum(genericFetchResult)(Kishimen.genericSumToVariantSum(Kishimen.genericSumToVariantConstructor(new Data_Symbol.IsSymbol(function () {
@@ -7241,6 +7241,7 @@ var PS = {};
   exports["spawn"] = spawn;
 })(PS);
 (function($PS) {
+  // Generated by purs version 0.13.0
   "use strict";
   $PS["Generate"] = $PS["Generate"] || {};
   var exports = $PS["Generate"];
@@ -7275,20 +7276,6 @@ var PS = {};
   var Simple_JSON_Utils = $PS["Simple.JSON.Utils"];
   var Sunde = $PS["Sunde"];                
   var template = "# This file was generated by Spago2Nix\x0a\x0a{ pkgs ? import <nixpkgs> {} }:\x0a\x0alet\x0a  inputs = {\x0aINPUTS\x0a  };\x0a\x0a  cpPackage = pkg:\x0a    let\x0a      target = \".spago/${pkg.name}/${pkg.version}\";\x0a    in ''\x0a      if [ ! -e ${target} ]; then\x0a        echo \"Installing ${target}.\"\x0a        mkdir -p ${target}\x0a        cp --no-preserve=mode,ownership,timestamp -r ${toString pkg.outPath}/* ${target}\x0a      else\x0a        echo \"${target} already exists. Skipping.\"\x0a      fi\x0a    '';\x0a\x0a  getGlob = pkg: ''\\\".spago/${pkg.name}/${pkg.version}/src/**/*.purs\\\"'';\x0a\x0ain {\x0a  inherit inputs;\x0a\x0a  installSpagoStyle = pkgs.runCommand \"install-spago-style\" {} ''\x0a      >>$out echo \"#!/usr/bin/env bash\"\x0a      >>$out echo\x0a      >>$out echo \"echo installing dependencies...\"\x0a      >>$out echo \"${builtins.toString (\x0a        builtins.map cpPackage (builtins.attrValues inputs))}\"\x0a      >>$out echo \"echo done.\"\x0a      chmod +x $out\x0a  '';\x0a\x0a  buildSpagoStyle = pkgs.runCommand \"build-spago-style\" {} ''\x0a      >>$out echo \"#!/usr/bin/env bash\"\x0a      >>$out echo\x0a      >>$out echo \"echo building project...\"\x0a      >>$out echo \"purs compile \\\"\\$@\\\" ${builtins.toString (\x0a        builtins.map getGlob (builtins.attrValues inputs))}\"\x0a      >>$out echo \"echo done.\"\x0a      chmod +x $out\x0a  '';\x0a}\x0a";
-
-  // # e.g. when you nix-prefetch-git
-  // # when you have a valid reference:
-  // $ nix-prefetch-git https://github.com/purescript/purescript-unsafe-coerce.git --rev v4.0.0 --quiet
-  // {
-  //   "rev": "fa6a5ca9b4581c00ee0b8539306a49badb7bee60",
-  //   "sha256": "0k9255mk2mz6xjb11pwkgfcblmmyvr86ig5kr92jwy95xim09zip",
-  // }
-  // # when you don't
-  // $ nix-prefetch-git https://github.com/purescript/purescript-unsafe-coerce.git --rev v4.0.j0 --quiet
-  // {
-  //   "rev": "refs/heads/fetchgit",
-  //   "sha256": "0sjjj9z1dhilhpc8pq4154czrb79z9cm044jvn75kxcjv6v5l2m5",
-  // }
   var spagoListPackages = (function () {
       var words = (function () {
           var $71 = Data_String_Common.split("\x0a");
@@ -7352,8 +7339,6 @@ var PS = {};
       return "./.spago2nix/" + (v.packageName + ("@" + (v.version + ".json")));
   };
   var ensureSetup = Control_Alt.alt(Effect_Aff.altAff)(Node_FS_Aff.mkdir("./.spago2nix"))(Control_Applicative.pure(Effect_Aff.applicativeAff)(Data_Unit.unit));
-
-  // | Magic SHA256 for broken fetches from nix-prefetch-git, see below notes
   var brokenRepoSHA = "0sjjj9z1dhilhpc8pq4154czrb79z9cm044jvn75kxcjv6v5l2m5";
   var fetchPackage = function (v) {
       if (v.repo instanceof Core.Local) {
@@ -7496,6 +7481,7 @@ var PS = {};
   exports.argv = process.argv;
 })(PS["Main"] = PS["Main"] || {});
 (function($PS) {
+  // Generated by purs version 0.13.0
   "use strict";
   $PS["Main"] = $PS["Main"] || {};
   var exports = $PS["Main"];
