@@ -138,15 +138,30 @@ INPUTS
       fi
     '';
 
+  getGlob = pkg: ''\".spago/${pkg.name}/${pkg.version}/src/**/*.purs\"'';
+
 in {
   inherit inputs;
 
-  installSpagoStyle = pkgs.stdenv.mkDerivation {
-    name = "install-spago-style";
-    shellHook = builtins.toString (
-      builtins.map cpPackage (builtins.attrValues inputs)
-    );
-  };
+  installSpagoStyle = pkgs.runCommand "install-spago-style" {} ''
+      >>$out echo "#!/usr/bin/env bash"
+      >>$out echo
+      >>$out echo "echo installing dependencies..."
+      >>$out echo "${builtins.toString (
+        builtins.map cpPackage (builtins.attrValues inputs))}"
+      >>$out echo "echo done."
+      chmod +x $out
+  '';
+
+  buildSpagoStyle = pkgs.runCommand "build-spago-style" {} ''
+      >>$out echo "#!/usr/bin/env bash"
+      >>$out echo
+      >>$out echo "echo building project..."
+      >>$out echo "purs compile \"\$@\" ${builtins.toString (
+        builtins.map getGlob (builtins.attrValues inputs))}"
+      >>$out echo "echo done."
+      chmod +x $out
+  '';
 }
 """
 

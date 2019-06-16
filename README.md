@@ -4,12 +4,6 @@
 
 Generate a derivation of Spago dependencies, and use them to install them into the directory structure used by Spago.
 
-To skip Spago altogether, you can also use the following to build:
-
-```
-purs compile '.spago/*/*/src/**/*.purs' 'src/**/*.purs'
-```
-
 ## Installation
 
 For now, simply clone this repo and run `npm link`. Requires a Node runtime and nix-prefetch-git.
@@ -32,14 +26,19 @@ Then install these, optionally with more jobs provided to Nix:
 
 ```bash
 $ spago2nix install -j 100
-installing...
+/nix/store/...-install-spago-style
+installing dependencies...
 # ...
-done
+done.
+Wrote install script to .spago2nix/install
 ```
 
-Then build however you'd like.
+Then build the project:
 
-```
-$ spago build --global-cache=skip
-$ purs compile '.spago/*/*/src/**/*.purs' 'src/**/*.purs'
+```bash
+$ spago2nix build
+/nix/store/...-build-spago-style
+building project...
+done.
+Wrote build script to .spago2nix/build
 ```

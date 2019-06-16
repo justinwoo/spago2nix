@@ -3,20 +3,55 @@ module Core where
 import Prelude
 
 import Control.Monad.Except.Trans as ExceptT
+import Data.Array as Array
 import Data.Bifunctor (lmap)
-import Data.Either (Either)
+import Data.Either (Either(..))
+import Data.Foldable (class Foldable)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Effect (Effect)
 import Effect.Aff (Aff)
+import Effect.Aff as Aff
 import Effect.Class (liftEffect)
 import Foreign (ForeignError(..), MultipleErrors)
 import Kishimen (genericSumToVariant, variantToGenericSum)
+import Node.ChildProcess as CP
 import Simple.JSON as JSON
 import Simple.JSON.Utils (printMultipleErrors)
 
 spagoPackagesNix :: String
 spagoPackagesNix = "spago-packages.nix"
+
+-- | Run a command with args that is detached
+runCommand :: { cmd :: String, args :: Array String } -> Aff Unit
+runCommand {cmd, args} = Aff.makeAff \cb -> do
+  output <- CP.spawn cmd args CP.defaultSpawnOptions
+    { detached = true
+    , stdio = CP.inherit
+    }
+  CP.onExit output \_ -> do
+    cb $ Right unit
+  mempty
+
+
+buildScript
+  :: forall f
+   . Foldable f
+  => { attr :: String
+     , extraArgs :: f String
+     , path :: String
+     }
+  -> Aff Unit
+buildScript { attr, path, extraArgs } = do
+  runCommand { cmd: "nix-build", args }
+  where
+    args =
+      [ spagoPackagesNix
+      , "-A"
+      , attr
+      , "-o"
+      , path
+      ] <> (Array.fromFoldable extraArgs)
 
 -- process.exit with exit code
 foreign import _exit :: forall a. Int -> Effect a
