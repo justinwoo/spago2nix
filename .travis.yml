@@ -1,0 +1,9 @@
+language: nix
+script:
+  - nix-build
+  - PATH=./result/bin:$PATH
+  - spago2nix
+  - # can't yet be tested using released spago version:
+  - # spago2nix generate
+  - spago2nix install
+  - spago2nix build
