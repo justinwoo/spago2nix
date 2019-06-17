@@ -38,6 +38,7 @@ Wrote install script to .spago2nix/install
 Then build the project:
 
 ```bash
+# SOON: spago --no-install
 $ spago2nix build
 /nix/store/...-build-spago-style
 building project...
