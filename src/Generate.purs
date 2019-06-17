@@ -9,6 +9,7 @@ import Core (FetchResult(..), MyError(..), NixPrefetchGitResult, Package, Repo(.
 import Data.Array as Array
 import Data.Bifunctor (lmap)
 import Data.Either (Either(..))
+import Data.Maybe (Maybe(..))
 import Data.String as String
 import Data.Traversable (traverse, traverse_)
 import Data.Validation.Semigroup (V(..), toEither)
@@ -42,12 +43,11 @@ brokenRepoSHA = SHA256 "0sjjj9z1dhilhpc8pq4154czrb79z9cm044jvn75kxcjv6v5l2m5"
 spagoListPackages :: Aff (Either MyError (Array Package))
 spagoListPackages = do
   error "getting packages.."
-  output <- S.spawn "spago"
-    [ "list-packages"
-    , "-f"
-    , "transitive"
-    , "-j"
-    ]
+  output <- S.spawn
+    { cmd: "spago"
+    , args: [ "list-packages", "-f", "transitive", "-j" ]
+    , stdin: Nothing
+    }
     CP.defaultSpawnOptions
 
   case output.exit of
@@ -64,12 +64,11 @@ spagoListPackages = do
 fetchPackage :: Package -> Aff (Either MyError FetchResult)
 fetchPackage p@{ repo: Local _ } = pure $ pure $ CantFetchLocal p
 fetchPackage p@{ repo: Remote (URL url), version: Version version } = ExceptT.runExceptT do
-  output <- ExceptT.lift $ S.spawn "nix-prefetch-git"
-    [ url
-    , "--rev"
-    , version
-    , "--quiet"
-    ]
+  output <- ExceptT.lift $ S.spawn
+    { cmd: "nix-prefetch-git"
+    , args: [ url, "--rev", version, "--quiet" ]
+    , stdin: Nothing
+    }
     CP.defaultSpawnOptions
 
   json <- case output.exit of

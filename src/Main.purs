@@ -2,6 +2,7 @@ module Main where
 
 import Prelude
 
+import Control.Alt ((<|>))
 import Core (DhallExpr(..), buildScript, exit, runCommand, runDhallToJSON)
 import Data.Either (Either(..))
 import Data.List (List, (:))
@@ -41,7 +42,7 @@ install extraArgs = do
 build :: List String -> Aff Unit
 build extraArgs = do
   buildScript { attr: "buildSpagoStyle", path: buildPath, extraArgs }
-  json <- runDhallToJSON (DhallExpr "(./spago.dhall).sources")
+  json <- runDhallToJSON (DhallExpr "(./spago.dhall).sources") <|> pure ""
   globs <- case JSON.readJSON json of
     Left _ -> do
       let defaultGlob = "src/**/*.purs"

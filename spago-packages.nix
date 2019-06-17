@@ -667,11 +667,11 @@ let
 
     "sunde" = pkgs.stdenv.mkDerivation {
         name = "sunde";
-        version = "v1.0.0";
+        version = "v2.0.0";
         src = pkgs.fetchgit {
           url = "https://github.com/justinwoo/purescript-sunde.git";
-          rev = "0342baae7d3d175bfc089ac1d2fcc10cfef18091";
-          sha256 = "1s62al6ark10hqc6kdz3nqarblpa6fmdy5kb3bjlxsa8nib436pa";
+          rev = "e9c898ac0ffd5e61d82a6c02606ab84241278709";
+          sha256 = "051kfqc06fbhavd3anvfhi5wfj76a6q4piis4lplypaw9g4n64l2";
         };
         phases = "installPhase";
         installPhase = "ln -s $src $out";
