@@ -2,7 +2,8 @@ module Main where
 
 import Prelude
 
-import Core (buildScript, exit, runCommand)
+import Core (DhallExpr(..), buildScript, exit, runCommand, runDhallToJSON)
+import Data.Either (Either(..))
 import Data.List (List, (:))
 import Data.List as List
 import Effect (Effect)
@@ -10,6 +11,7 @@ import Effect.Aff (Aff)
 import Effect.Aff as Aff
 import Effect.Class.Console (log)
 import Generate as Generate
+import Simple.JSON as JSON
 
 foreign import argv :: Array String
 
@@ -22,6 +24,7 @@ main = Aff.launchAff_ do
     "generate" : List.Nil -> Generate.generate
     "install" : rest -> install rest
     "build" : rest -> build rest
+    "help" : rest -> log help
     List.Nil -> log help
     _ -> do
       log $ "Unknown arguments: " <> List.intercalate " " args
@@ -38,15 +41,24 @@ install extraArgs = do
 build :: List String -> Aff Unit
 build extraArgs = do
   buildScript { attr: "buildSpagoStyle", path: buildPath, extraArgs }
-  runCommand { cmd: "bash", args: [buildPath, "src/**/*.purs"] }
+  json <- runDhallToJSON (DhallExpr "(./spago.dhall).sources")
+  globs <- case JSON.readJSON json of
+    Left _ -> do
+      let defaultGlob = "src/**/*.purs"
+      log $ "failed to read sources from spago.dhall using dhall-to-json."
+      log $ "using default glob: " <> defaultGlob
+      pure [defaultGlob]
+    Right (xs :: Array String) -> do
+      log $ "using sources from spago.dhall: " <> show xs
+      pure xs
+  runCommand { cmd: "bash", args: [buildPath] <> globs }
   log $ "Wrote build script to " <> buildPath
   exit 0
   where
     buildPath = ".spago2nix/build"
 
 help :: String
-help = """
-spago2nix - generate Nix derivations from packages required in a spago project, and allow for installing them and building them.
+help = """spago2nix - generate Nix derivations from packages required in a spago project, and allow for installing them and building them.
 
   Usage: spago2nix (generate | install | build)
 

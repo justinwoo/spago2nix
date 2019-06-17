@@ -9,26 +9,66 @@ import Data.Either (Either(..))
 import Data.Foldable (class Foldable)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
+import Data.Posix.Signal (Signal(..))
 import Effect (Effect)
-import Effect.Aff (Aff)
+import Effect.Aff (Aff, effectCanceler)
 import Effect.Aff as Aff
 import Effect.Class (liftEffect)
+import Effect.Class.Console (error)
+import Effect.Ref as Ref
 import Foreign (ForeignError(..), MultipleErrors)
 import Kishimen (genericSumToVariant, variantToGenericSum)
 import Node.ChildProcess as CP
+import Node.Encoding (Encoding(..))
+import Node.Stream (end, onDataString, writeString)
 import Simple.JSON as JSON
 import Simple.JSON.Utils (printMultipleErrors)
 
 spagoPackagesNix :: String
 spagoPackagesNix = "spago-packages.nix"
 
+newtype DhallExpr = DhallExpr String
+
+runDhallToJSON :: DhallExpr -> Aff String
+runDhallToJSON (DhallExpr expr) = Aff.makeAff \cb -> do
+  stdoutRef <- Ref.new ""
+  stderrRef <- Ref.new ""
+
+  process <- CP.spawn "dhall-to-json" [] CP.defaultSpawnOptions
+
+  let write = CP.stdin process
+  _ <- writeString write UTF8 expr do
+    end write mempty
+
+  onDataString (CP.stdout process) UTF8 \string ->
+    Ref.modify_ (_ <> string) stdoutRef
+
+  onDataString (CP.stderr process) UTF8 \string ->
+    Ref.modify_ (_ <> string) stderrRef
+
+  CP.onError process $ cb <<< Left <<< CP.toStandardError
+
+  CP.onExit process \code -> do
+    case code of
+      CP.Normally 0 -> do
+        stdout <- Ref.read stdoutRef
+        cb $ Right $ stdout
+      _ -> do
+        stderr <- Ref.read stderrRef
+        error "error running dhall-to-json:"
+        error $ show code
+        error stderr
+        cb $ Left $ Aff.error $ stderr
+
+  pure <<< effectCanceler <<< void $ CP.kill SIGTERM process
+
 -- | Run a command with args
 runCommand :: { cmd :: String, args :: Array String } -> Aff Unit
 runCommand {cmd, args} = Aff.makeAff \cb -> do
-  output <- CP.spawn cmd args CP.defaultSpawnOptions
+  cp <- CP.spawn cmd args CP.defaultSpawnOptions
     { stdio = CP.inherit
     }
-  CP.onExit output \_ -> do
+  CP.onExit cp \_ -> do
     cb $ Right unit
   mempty
 
