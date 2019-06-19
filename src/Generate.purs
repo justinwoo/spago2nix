@@ -56,6 +56,8 @@ spagoListPackages = do
       error $ "got " <> show (Array.length lines) <> " packages from Spago list-packages."
       pure $ traverse readPackage lines
     e -> do
+      error "Failed to list packages:"
+      error output.stderr
       pure $ Left $ SpagoRunError (show e)
   where
     words :: String -> Array String
