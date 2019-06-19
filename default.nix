@@ -13,8 +13,8 @@ let
   easy-purescript-nix = import (pkgs.fetchFromGitHub {
     owner = "justinwoo";
     repo = "easy-purescript-nix";
-    rev = "7f6b91f42a9a00fdc10e28dfb89202b929c8ff55";
-    sha256 = "1arnk5abdgiv4x83aa80vkld9qs2z7808xlz7jvmhbc3p7ya497b";
+    rev = "3cc22df4d4495b884d4537c715316fd83dfe4831";
+    sha256 = "1h5cfligvgnbbhq98vmzsvb7b37gmvsk17k7qxncfb66l3jshcmp";
   });
 
 in pkgs.stdenv.mkDerivation {
