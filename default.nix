@@ -13,8 +13,8 @@ let
   easy-purescript-nix = import (pkgs.fetchFromGitHub {
     owner = "justinwoo";
     repo = "easy-purescript-nix";
-    rev = "e54b442633f59adedc3fbc81889ca7cb6b3ef087";
-    sha256 = "17i19dnqmd71bdz83bc3aak2rx3p1lvgwp1cc02w3sm9i24s9pvz";
+    rev = "7f6b91f42a9a00fdc10e28dfb89202b929c8ff55";
+    sha256 = "1arnk5abdgiv4x83aa80vkld9qs2z7808xlz7jvmhbc3p7ya497b";
   });
 
 in pkgs.stdenv.mkDerivation {
@@ -36,6 +36,7 @@ in pkgs.stdenv.mkDerivation {
     wrapProgram $target \
       --prefix PATH : ${pkgs.lib.makeBinPath [
         pkgs.nix-prefetch-git
+        easy-purescript-nix.purs
         easy-purescript-nix.spago
         easy-dhall-nix.dhall-json-simple
       ]}
