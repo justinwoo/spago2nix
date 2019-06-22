@@ -43,3 +43,7 @@ building project...
 done.
 Wrote build script to .spago2nix/build
 ```
+
+## Further Reading
+
+Here is a blog post I did about this project: <https://github.com/justinwoo/my-blog-posts/blob/master/posts/2019-06-22-spago2nix-why-and-how.md>
