@@ -8,7 +8,7 @@ let easy-dhall-nix = pkgs: import (pkgs.fetchFromGitHub {
 }; in
 
 { pkgs ? import <nixpkgs> {}
-, dhall-json ? (easy-dhall-nix pkgs).dhall-json-simple
+, dhallJson ? (easy-dhall-nix pkgs).dhall-json-simple
 }:
 
 let easy-purescript-nix = import (pkgs.fetchFromGitHub {
@@ -39,7 +39,7 @@ pkgs.stdenv.mkDerivation {
         pkgs.nix-prefetch-git
         easy-purescript-nix.purs
         easy-purescript-nix.spago
-        dhall-json
+        dhallJson
       ]}
   '';
 }
