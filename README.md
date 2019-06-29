@@ -44,6 +44,35 @@ done.
 Wrote build script to .spago2nix/build
 ```
 
+When using in your own Nix derivation, the best practice is calling generated scripts from `spago-packages.nix`:
+
+```nix
+{ pkgs, stdenv }:
+
+let 
+  spagoPkgs = import ./spago-packages.nix { inherit pkgs; };
+in
+pkgs.stdenv.mkDerivation rec {
+  # < ... >
+  buildPhase = 
+  '' 
+    ${spagoPkgs.installSpagoStyle} # == spago2nix install
+    ${spagoPkgs.buildSpagoStyle}   # == spago2nix build
+  '';
+  # < ... >
+}
+```
+
 ## Further Reading
 
 Here is a blog post I did about this project: <https://github.com/justinwoo/my-blog-posts/blob/master/posts/2019-06-22-spago2nix-why-and-how.md>
+
+## Troubleshooting
+
+#### I get `MissingRevOrRepoResult` on a package with branch name as a version
+
+Nix gives out the specific constant SHA256 hash for broken Git fetches, so the error is thrown. 
+One of the causes for a broken fetch is wrong checkout revision. Nix supports fetches by commit hash and tags out of the box, but fails at plain branch names. 
+
+You can use more verbose reference `refs/heads/branch-name` at `packages.dhall` before generating a `.nix` file.
+However, __the branch name usage is discouraged in Spago__ ([refer to Note here](https://github.com/spacchetti/spago#override-a-package-in-the-package-set-with-a-remote-one)), it's better using a particular commit hash.
