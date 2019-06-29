@@ -24,7 +24,8 @@ main = Aff.launchAff_ do
   case args of
     "generate" : List.Nil -> Generate.generate
     "install" : rest -> install rest
-    "build" : rest -> build rest
+    "build" : rest -> build SpagoStyle rest
+    "build-nix" : rest -> build NixStyle rest
     "help" : rest -> log help
     List.Nil -> log help
     _ -> do
@@ -39,9 +40,13 @@ install extraArgs = do
   where
     installPath = ".spago2nix/install"
 
-build :: List String -> Aff Unit
-build extraArgs = do
-  buildScript { attr: "buildSpagoStyle", path: buildPath, extraArgs }
+data BuildStyle
+  = SpagoStyle
+  | NixStyle
+
+build :: BuildStyle -> List String -> Aff Unit
+build buildStyle extraArgs = do
+  buildScript { attr: buildStyleAttr, path: buildPath, extraArgs }
   json <- runDhallToJSON (DhallExpr "(./spago.dhall).sources") <|> pure ""
   globs <- case JSON.readJSON json of
     Left _ -> do
@@ -57,6 +62,9 @@ build extraArgs = do
   exit 0
   where
     buildPath = ".spago2nix/build"
+    buildStyleAttr = case buildStyle of
+      SpagoStyle -> "buildSpagoStyle"
+      NixStyle -> "buildFromNixStore"
 
 help :: String
 help = """spago2nix - generate Nix derivations from packages required in a spago project, and allow for installing them and building them.
@@ -70,4 +78,6 @@ Available commands:
     Install dependencies from spago-packages.nix in Spago style
   build [passthrough args for nix-shell]
     Build the project Spago style
+  build-nix [passthrough args for nix-shell]
+    Build the project using dependency sources from Nix store
 """
