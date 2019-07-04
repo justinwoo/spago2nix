@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.com/justinwoo/spago2nix.svg?branch=master)](https://travis-ci.com/justinwoo/spago2nix)
 
+![](./logo-256.png)
+
 Generate a derivation of Spago dependencies, and use them to install them into the directory structure used by Spago.
 
 ## Installation
