@@ -24,7 +24,7 @@ let
 in pkgs.stdenv.mkDerivation {
   name = "spago2nix";
 
-  src = ./.;
+  src = pkgs.nix-gitignore.gitignoreSource [".git"] ./.;
 
   buildInputs = [ pkgs.makeWrapper ];
 
