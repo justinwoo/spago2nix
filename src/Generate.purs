@@ -160,8 +160,8 @@ in {
       >>$out echo "#!/usr/bin/env bash"
       >>$out echo
       >>$out echo "echo building project..."
-      >>$out echo "purs compile \"\$@\" ${builtins.toString (
-        builtins.map getGlob (builtins.attrValues inputs))}"
+      >>$out echo "purs compile ${builtins.toString (
+        builtins.map getGlob (builtins.attrValues inputs))}" \"\$@\"
       >>$out echo "echo done."
       chmod +x $out
   '';
@@ -170,8 +170,8 @@ in {
       >>$out echo "#!/usr/bin/env bash"
       >>$out echo
       >>$out echo "echo building project using sources from nix store..."
-      >>$out echo "purs compile \"\$@\" ${builtins.toString (
-        builtins.map getStoreGlob (builtins.attrValues inputs))}"
+      >>$out echo "purs compile ${builtins.toString (
+        builtins.map getStoreGlob (builtins.attrValues inputs))}" \"\$@\"
       >>$out echo "echo done."
       chmod +x $out
   '';
