@@ -2,8 +2,8 @@ let
   easy-dhall-nix = pkgs: import (pkgs.fetchFromGitHub {
     owner = "justinwoo";
     repo = "easy-dhall-nix";
-    rev = "b4736f4496cf313d41203f75a87f229b9a435f76";
-    sha256 = "0lzzbwnkfs5fqya0r2wzzrysmn08rl002cndkz9s261gydp03pz4";
+    rev = "de5dfc71ce9e7597b62b470dee9254c6de09d515";
+    sha256 = "1103sczf2xkwgbmmkmaqf59db6q0gb18vv4v3i7py1f8nlpyv02i";
   }) {
     inherit pkgs;
   };
@@ -17,14 +17,16 @@ let
   easy-purescript-nix = import (pkgs.fetchFromGitHub {
     owner = "justinwoo";
     repo = "easy-purescript-nix";
-    rev = "3cc22df4d4495b884d4537c715316fd83dfe4831";
-    sha256 = "1h5cfligvgnbbhq98vmzsvb7b37gmvsk17k7qxncfb66l3jshcmp";
-  });
+    rev = "50ebcb6107aec7562b8391e5b329c2856d79fc96";
+    sha256 = "1j7mrk094mvaadpsxcz11namrzng9pzn4yzzlzmlcn90q3jzma1v";
+  }) {
+    inherit pkgs;
+  };
 
 in pkgs.stdenv.mkDerivation {
   name = "spago2nix";
 
-  src = pkgs.nix-gitignore.gitignoreSource [".git"] ./.;
+  src = pkgs.nix-gitignore.gitignoreSource [ ".git" ] ./.;
 
   buildInputs = [ pkgs.makeWrapper ];
 
@@ -40,7 +42,6 @@ in pkgs.stdenv.mkDerivation {
     wrapProgram $target \
       --prefix PATH : ${pkgs.lib.makeBinPath [
         pkgs.nix-prefetch-git
-        easy-purescript-nix.purs
         easy-purescript-nix.spago
         dhall-json
       ]}
