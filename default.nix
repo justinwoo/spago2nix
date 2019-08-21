@@ -41,6 +41,7 @@ in pkgs.stdenv.mkDerivation {
 
     wrapProgram $target \
       --prefix PATH : ${pkgs.lib.makeBinPath [
+        pkgs.coreutils
         pkgs.nix-prefetch-git
         easy-purescript-nix.spago
         dhall-json
