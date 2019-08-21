@@ -836,4 +836,23 @@ in {
       >>$out echo "echo done."
       chmod +x $out
   '';
+
+  mkBuildProjectOutput =
+    { src, purs }:
+
+    pkgs.stdenv.mkDerivation {
+      name = "build-project-output";
+      src = src;
+
+      buildInputs = [ purs ];
+
+      installPhase = ''
+        mkdir -p $out
+        purs compile "$src/**/*.purs" ${builtins.toString
+          (builtins.map
+            (x: ''"${x.outPath}/src/**/*.purs"'')
+            (builtins.attrValues inputs))}
+        mv output $out
+      '';
+    };
 }

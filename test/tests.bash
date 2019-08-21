@@ -7,3 +7,4 @@ spago2nix install -j 100
 spago2nix build
 rm -rf output
 spago2nix build-nix
+nix-build build-project.nix
