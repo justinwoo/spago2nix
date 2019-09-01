@@ -58,7 +58,7 @@ pkgs.stdenv.mkDerivation rec {
   buildPhase = 
   '' 
     ${spagoPkgs.installSpagoStyle} # == spago2nix install
-    ${spagoPkgs.buildSpagoStyle}   # == spago2nix build
+    ${spagoPkgs.buildSpagoStyle} src/Main.purs  # == spago2nix build
   '';
   # < ... >
 }
