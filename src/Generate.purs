@@ -154,20 +154,20 @@ in {
   '';
 
   buildSpagoStyle = pkgs.writeShellScriptBin "build-spago-style" ''
-    EXTRA_FILES=$@
+    EXTRA_FILES="$@"
 
     echo "echo building project..."
     echo "purs compile ${builtins.toString (
-      builtins.map getGlob (builtins.attrValues inputs))}" \"\$EXTRA_FILES\"
+      builtins.map getGlob (builtins.attrValues inputs))}" \$EXTRA_FILES
     echo "echo done."
   '';
 
   buildFromNixStore = pkgs.writeShellScriptBin "build-from-store" ''
-    EXTRA_FILES=$@
+    EXTRA_FILES="$@"
 
     echo "echo building project using sources from nix store..."
     echo "purs compile ${builtins.toString (
-      builtins.map getStoreGlob (builtins.attrValues inputs))}" \"\$EXTRA_FILES\"
+      builtins.map getStoreGlob (builtins.attrValues inputs))}" \$EXTRA_FILES
     echo "echo done."
   '';
 
