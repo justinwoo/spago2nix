@@ -172,13 +172,13 @@ in {
   '';
 
   mkBuildProjectOutput =
-    { src, purs }:
+    { src, purescript }:
 
     pkgs.stdenv.mkDerivation {
       name = "build-project-output";
       src = src;
 
-      buildInputs = [ purs ];
+      buildInputs = [ purescript ];
 
       installPhase = ''
         mkdir -p $out
