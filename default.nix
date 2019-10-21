@@ -39,7 +39,7 @@ in
         mkdir -p $out/bin
         target=$out/bin/spago2nix
 
-        >>$target echo '#!/usr/bin/env node'
+        >>$target echo '#!${pkgs.nodejs}/bin/node'
         >>$target echo "require('$src/bin/output.js')";
 
         chmod +x $target
