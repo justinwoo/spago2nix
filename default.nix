@@ -13,6 +13,7 @@ let
 in
 { pkgs ? import <nixpkgs> {}
 , dhall-json ? (easy-dhall-nix pkgs).dhall-json-simple
+, nodejs ? pkgs.nodejs-10_x
 }:
 
   let
@@ -39,7 +40,7 @@ in
         mkdir -p $out/bin
         target=$out/bin/spago2nix
 
-        >>$target echo '#!${pkgs.nodejs}/bin/node'
+        >>$target echo '#!${nodejs}/bin/node'
         >>$target echo "require('$src/bin/output.js')";
 
         chmod +x $target
