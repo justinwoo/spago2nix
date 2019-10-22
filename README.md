@@ -55,10 +55,15 @@ let
 in
 pkgs.stdenv.mkDerivation rec {
   # < ... >
+  src = ./.;
+
+  buildInputs = [ spagoPackages.installSpagoStyle ];
+
   buildPhase = 
   '' 
-    ${spagoPkgs.installSpagoStyle} # == spago2nix install
-    ${spagoPkgs.buildSpagoStyle}   # == spago2nix build
+    installSpagoStyle # == spago2nix install
+
+    ${spagoPackages.mkBuildProjectOutput { inherit src purescript; }}
   '';
   # < ... >
 }
