@@ -205,7 +205,12 @@ printResult (CantFetchLocal { packageName, repo })
     = replace { from: "PKGNAME", to: packageName }
   <<< replace { from: "PATH", to: show repo }
     $ """
-  # PKGNAME is a Local package in PATH
+    "PKGNAME" = pkgs.stdenv.mkDerivation {
+        name = "PKGNAME";
+        src = PATH;
+        phases = "installPhase";
+        installPhase = "ln -s $src $out";
+      };
 """
 printResult (Fetched
   { package: { packageName, version: Version version }
