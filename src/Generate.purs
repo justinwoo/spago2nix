@@ -160,7 +160,7 @@ in {
       >>$out echo "#!/usr/bin/env bash"
       >>$out echo
       >>$out echo "echo building project..."
-      >>$out echo "purs compile ${builtins.toString (
+      >>$out echo "purs compile EXTRA_GLOBS ${builtins.toString (
         builtins.map getGlob (builtins.attrValues inputs))}" \"\$@\"
       >>$out echo "echo done."
       chmod +x $out
@@ -170,7 +170,7 @@ in {
       >>$out echo "#!/usr/bin/env bash"
       >>$out echo
       >>$out echo "echo building project using sources from nix store..."
-      >>$out echo "purs compile ${builtins.toString (
+      >>$out echo "purs compile EXTRA_GLOBS ${builtins.toString (
         builtins.map getStoreGlob (builtins.attrValues inputs))}" \"\$@\"
       >>$out echo "echo done."
       chmod +x $out
@@ -187,7 +187,7 @@ in {
 
       installPhase = ''
         mkdir -p $out
-        purs compile "$src/**/*.purs" ${builtins.toString
+        purs compile "$src/**/*.purs" EXTRA_GLOBS ${builtins.toString
           (builtins.map
             (x: ''"${x.outPath}/src/**/*.purs"'')
             (builtins.attrValues inputs))}
@@ -231,8 +231,20 @@ printResult (Fetched
 """
 
 printResults :: Array FetchResult -> String
-printResults xs = replace { from: "INPUTS", to: inputs } template
-  where inputs = Array.foldMap printResult xs
+printResults xs
+    = replace { from: "INPUTS", to: inputs }
+  <<< replace { from: "EXTRA_GLOBS", to: extraGlobs }
+    $ template
+  where
+    inputs = Array.foldMap printResult xs
+    extraGlobs
+        = String.joinWith " "
+        $ (\path -> "\"" <> path <> "/**/*.purs\"")
+      <$> Array.mapMaybe getLocalPath xs
+
+    getLocalPath :: FetchResult -> Maybe String
+    getLocalPath (CantFetchLocal {repo: Local path}) = Just path
+    getLocalPath _ = Nothing
 
 generate :: Aff Unit
 generate = do
