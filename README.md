@@ -59,6 +59,7 @@ pkgs.stdenv.mkDerivation rec {
   '' 
     ${spagoPkgs.installSpagoStyle} # == spago2nix install
     ${spagoPkgs.buildSpagoStyle}   # == spago2nix build
+    ${spagoPkgs.buildFromNixStore} # == spago2nix build
   '';
   # < ... >
 }
@@ -77,3 +78,23 @@ One of the causes for a broken fetch is wrong checkout revision. Nix supports fe
 
 You can use more verbose reference `refs/heads/branch-name` at `packages.dhall` before generating a `.nix` file.
 However, __the branch name usage is discouraged in Spago__ ([refer to Note here](https://github.com/spacchetti/spago#override-a-package-in-the-package-set-with-a-remote-one)), it's better using a particular commit hash.
+
+### I don't know how to compile my project in a derivation
+
+Spago2nix will install and build your project dependencies, but you may still want to use `spago` to bundle your project. You should not use Spago installation or build commands in a derivation. Use Spago's `--no-install` and `--no-build` flags when bundling your project as part of the build phase of a derivation:
+
+```nix
+pkgs.stdenv.mkDerivation {
+  # < ... >
+  buildPhase = ''
+    ${spago}/bin/spago bundle-app --no-install --no-build --to $out/index.js
+  '';
+  # < ... >
+};
+```
+
+If you attempt to use Spago commands to install or build in your project, you'll see the following error:
+
+```
+spago: security: createProcess: runInteractiveProcess: exec: does not exist (No such file or directory)
+```
