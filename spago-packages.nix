@@ -807,34 +807,26 @@ let
 in {
   inherit inputs;
 
-  installSpagoStyle = pkgs.runCommand "install-spago-style" {} ''
-      >>$out echo "#!/usr/bin/env bash"
-      >>$out echo
-      >>$out echo "echo installing dependencies..."
-      >>$out echo "${builtins.toString (
-        builtins.map cpPackage (builtins.attrValues inputs))}"
-      >>$out echo "echo done."
-      chmod +x $out
+  installSpagoStyle = pkgs.writeShellScriptBin "install-spago-style" ''
+      #!/usr/bin/env bash
+      echo installing dependencies...
+      ${builtins.toString (builtins.map cpPackage (builtins.attrValues inputs))}
+      echo "echo done."
   '';
 
-  buildSpagoStyle = pkgs.runCommand "build-spago-style" {} ''
-      >>$out echo "#!/usr/bin/env bash"
-      >>$out echo
-      >>$out echo "echo building project..."
-      >>$out echo "purs compile ${builtins.toString (
-        builtins.map getGlob (builtins.attrValues inputs))}" \"\$@\"
-      >>$out echo "echo done."
-      chmod +x $out
+  buildSpagoStyle = pkgs.writeShellScriptBin "build-spago-style" ''
+      #!/usr/bin/env bash
+      echo building project...
+      purs compile ${builtins.toString (builtins.map getGlob (builtins.attrValues inputs))} "$@"
+      echo done.
   '';
 
-  buildFromNixStore = pkgs.runCommand "build-from-store" {} ''
-      >>$out echo "#!/usr/bin/env bash"
-      >>$out echo
-      >>$out echo "echo building project using sources from nix store..."
-      >>$out echo "purs compile ${builtins.toString (
-        builtins.map getStoreGlob (builtins.attrValues inputs))}" \"\$@\"
-      >>$out echo "echo done."
-      chmod +x $out
+  buildFromNixStore = pkgs.writeShellScriptBin "build-from-store" ''
+      #!/usr/bin/env bash
+      echo building project using sources from nix store...
+      purs compile ${builtins.toString (
+        builtins.map getStoreGlob (builtins.attrValues inputs))} "$@"
+      echo done.
   '';
 
   mkBuildProjectOutput =
