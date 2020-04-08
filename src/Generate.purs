@@ -45,7 +45,7 @@ spagoListPackages = do
   error "getting packages.."
   output <- S.spawn
     { cmd: "spago"
-    , args: [ "list-packages", "-f", "transitive", "-j" ]
+    , args: [ "ls", "packages", "-j" ]
     , stdin: Nothing
     }
     CP.defaultSpawnOptions
@@ -72,7 +72,6 @@ fetchPackage p@{ repo: Remote (URL url), version: Version version } = ExceptT.ru
     , stdin: Nothing
     }
     CP.defaultSpawnOptions
-
   json <- case output.exit of
     CP.Normally 0 -> do
       pure output.stdout
