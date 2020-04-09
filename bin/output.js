@@ -7334,7 +7334,7 @@ var PS = {};
       return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)(Effect_Class_Console.error(Effect_Aff.monadEffectAff)("getting packages.."))(function () {
           return Control_Bind.bind(Effect_Aff.bindAff)(Sunde.spawn({
               cmd: "spago",
-              args: [ "list-packages", "-f", "transitive", "-j" ],
+              args: [ "ls", "packages", "-j" ],
               stdin: Data_Maybe.Nothing.value
           })(Node_ChildProcess.defaultSpawnOptions))(function (output) {
               if (output.exit instanceof Node_ChildProcess.Normally && output.exit.value0 === 0) {
@@ -7382,7 +7382,7 @@ var PS = {};
               to: v.value0.result.sha256
           })("\x0a    \"PKGNAME\" = pkgs.stdenv.mkDerivation {\x0a        name = \"PKGNAME\";\x0a        version = \"VERSION\";\x0a        src = pkgs.fetchgit {\x0a          url = \"URL\";\x0a          rev = \"REV\";\x0a          sha256 = \"SHA256\";\x0a        };\x0a        phases = \"installPhase\";\x0a        installPhase = \"ln -s $src $out\";\x0a      };\x0a")))));
       };
-      throw new Error("Failed pattern match at Generate (line 195, column 1 - line 195, column 37): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Generate (line 194, column 1 - line 194, column 37): " + [ v.constructor.name ]);
   };
   var printResults = function (xs) {
       var inputs = Data_Foldable.foldMap(Data_Foldable.foldableArray)(Data_Monoid.monoidString)(printResult)(xs);
@@ -7426,7 +7426,7 @@ var PS = {};
                       if (v1 instanceof Data_Either.Left) {
                           return Control_Monad_Error_Class.throwError(Control_Monad_Except_Trans.monadThrowExceptT(Effect_Aff.monadAff))(new Core.NixPrefetchGitOutputDeformed(Simple_JSON_Utils.printMultipleErrors(v1.value0)));
                       };
-                      throw new Error("Failed pattern match at Generate (line 82, column 37 - line 84, column 88): " + [ v1.constructor.name ]);
+                      throw new Error("Failed pattern match at Generate (line 81, column 37 - line 83, column 88): " + [ v1.constructor.name ]);
                   })())(function (v1) {
                       var $36 = Data_Eq.eq(Core.eqSHA)(v1.sha256)(brokenRepoSHA);
                       if ($36) {
@@ -7461,7 +7461,7 @@ var PS = {};
                       if (v instanceof Data_Either.Left) {
                           return Control_Applicative.pure(Effect_Aff.applicativeAff)(Data_Either.Left.create(new Core.FileContentsCorrupted(p, path, Simple_JSON_Utils.printMultipleErrors(v.value0))));
                       };
-                      throw new Error("Failed pattern match at Generate (line 97, column 7 - line 99, column 85): " + [ v.constructor.name ]);
+                      throw new Error("Failed pattern match at Generate (line 96, column 7 - line 98, column 85): " + [ v.constructor.name ]);
                   });
               });
           };
@@ -7475,7 +7475,7 @@ var PS = {};
                           return Control_Applicative.pure(Effect_Aff.applicativeAff)(result);
                       });
                   };
-                  throw new Error("Failed pattern match at Generate (line 103, column 7 - line 107, column 22): " + [ result.constructor.name ]);
+                  throw new Error("Failed pattern match at Generate (line 102, column 7 - line 106, column 22): " + [ result.constructor.name ]);
               });
           });
       });
@@ -7494,7 +7494,7 @@ var PS = {};
                       return Core.exit(1);
                   });
               };
-              throw new Error("Failed pattern match at Generate (line 251, column 7 - line 255, column 17): " + [ result.constructor.name ]);
+              throw new Error("Failed pattern match at Generate (line 250, column 7 - line 254, column 17): " + [ result.constructor.name ]);
           });
       };
       return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)(ensureSetup)(function () {
@@ -7520,7 +7520,7 @@ var PS = {};
                           });
                       });
                   };
-                  throw new Error("Failed pattern match at Generate (line 234, column 3 - line 242, column 13): " + [ fetches.constructor.name ]);
+                  throw new Error("Failed pattern match at Generate (line 233, column 3 - line 241, column 13): " + [ fetches.constructor.name ]);
               });
           });
       });
