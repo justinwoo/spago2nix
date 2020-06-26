@@ -73,9 +73,7 @@ Here is a blog post I did about this project: <https://github.com/justinwoo/my-b
 
 #### Can I get some manual support from you?
 
-Yes, I would really like to help your company use this tool if you need some specific help. As tweeted here: <https://twitter.com/jusrin00/status/1221363901692026892>
-
-Please have your company reach me through Twitter or Gmail if you would like to buy support.
+Yes! Please consider supporting me through GitHub Sponsors and get in touch: <https://github.com/sponsors/justinwoo>
 
 #### I get `MissingRevOrRepoResult` on a package with branch name as a version
 
