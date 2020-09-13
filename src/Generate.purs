@@ -225,11 +225,22 @@ printResults :: Array FetchResult -> String
 printResults xs = replace { from: "INPUTS", to: inputs } template
   where inputs = Array.foldMap printResult xs
 
-generate :: Aff Unit
-generate = do
+concatMapM :: forall a b m. Monad m => (a -> m (Array b)) -> Array a -> m (Array b)
+concatMapM f xs = Array.concat <$> traverse f xs
+
+chunk :: forall a. Int -> Array a -> Array (Array a)
+chunk _ [] = []
+chunk n xs | n < 1     = [xs]
+           | otherwise = chunk' [] xs
+  where
+    chunk' acc [] = acc
+    chunk' acc rest = chunk' (acc <> [Array.take n rest]) (Array.drop n rest)
+
+generate :: Int -> Aff Unit
+generate maxProcs = do
   ensureSetup
   packages <- exitOnError spagoListPackages
-  fetches <- toResult <$> parTraverse ensureFetchPackage packages
+  fetches <- toResult <$> concatMapM (parTraverse ensureFetchPackage) (chunk maxProcs packages)
   case fetches of
     Left errors -> do
       error "errors from fetching packages:"

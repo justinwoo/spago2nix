@@ -9,6 +9,7 @@ You can edit this file as you like.
 , dependencies =
     [ "console"
     , "generics-rep"
+    , "integers"
     , "kishimen"
     , "node-fs-aff"
     , "parallel"
