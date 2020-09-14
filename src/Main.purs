@@ -5,8 +5,10 @@ import Prelude
 import Control.Alt ((<|>))
 import Core (DhallExpr(..), buildScript, exit, runCommand, runDhallToJSON)
 import Data.Either (Either(..))
+import Data.Int as Int
 import Data.List (List, (:))
 import Data.List as List
+import Data.Maybe (Maybe(Just, Nothing))
 import Effect (Effect)
 import Effect.Aff (Aff)
 import Effect.Aff as Aff
@@ -22,7 +24,7 @@ args = List.drop 2 $ List.fromFoldable argv
 main :: Effect Unit
 main = Aff.launchAff_ do
   case args of
-    "generate" : List.Nil -> Generate.generate
+    "generate" : rest -> generate rest
     "install" : rest -> install rest
     "build" : rest -> build SpagoStyle rest
     "build-nix" : rest -> build NixStyle rest
@@ -30,6 +32,20 @@ main = Aff.launchAff_ do
     List.Nil -> log help
     _ -> do
       log $ "Unknown arguments: " <> List.intercalate " " args
+
+generate :: List String -> Aff Unit
+generate extraArgs = do
+  case (parse extraArgs) of
+    Nothing -> do
+      log $ "Expected an integer, but got: " <> List.intercalate " " extraArgs
+      log $ "Specify the maximum number of packages to fetch simultaneously."
+      exit 1
+    Just n -> Generate.generate n
+  where
+    parse :: List String -> Maybe Int
+    parse List.Nil = Just 0
+    parse (List.Cons arg List.Nil) = Int.fromString arg
+    parse _ = Nothing
 
 install :: List String -> Aff Unit
 install extraArgs = do
@@ -72,8 +88,9 @@ help = """spago2nix - generate Nix derivations from packages required in a spago
   Usage: spago2nix (generate | install | build)
 
 Available commands:
-  generate
-    Generate a Nix expression of packages from Spago
+  generate [n]
+    Generate a Nix expression of packages from Spago. If n is
+    given, it will limit the number of packages fetched at once.
   install [passthrough args for nix-shell]
     Install dependencies from spago-packages.nix in Spago style
   build [passthrough args for nix-shell]
