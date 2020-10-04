@@ -138,9 +138,9 @@ INPUTS
       fi
     '';
 
-  getGlob = pkg: ''\".spago/${pkg.name}/${pkg.version}/src/**/*.purs\"'';
+  getGlob = pkg: ''".spago/${pkg.name}/${pkg.version}/src/**/*.purs"'';
 
-  getStoreGlob = pkg: ''\"${pkg.outPath}/src/**/*.purs\"'';
+  getStoreGlob = pkg: ''"${pkg.outPath}/src/**/*.purs"'';
 
 in {
   inherit inputs;
