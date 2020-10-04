@@ -65,6 +65,87 @@ pkgs.stdenv.mkDerivation rec {
 }
 ```
 
+
+## Workflow
+
+The [workflow of `spago2nix`](https://github.com/purescript/spago/issues/547) is:
+
+1. Ensure you have Spago installed, a `packages.dhall` file, and a `spago.dhall`
+   file.
+
+2. Run `spago2nix generate` to generate a new `spago-packages.nix` file which
+   describes how to build the dependencies.
+
+   You can add `spago2nix` to the `nativeBuildInputs` of a `mkShell` just by
+   importing the `spago2nix` repository `default.nix`.
+
+   ```nix
+   spago2nix = import (builtins.fetchGit {
+     url = "git@github.com:justinwoo/spago2nix.git";
+     rev = "...";
+   }) { inherit pkgs; };
+
+
+   pkgs.mkShell {
+     nativeBuildInputs = with pkgs; [
+       spago2nix
+     ];
+   ```
+
+   Then you'll be able to run `spago2nix generate` in an impure shell. It will
+   call out to the network to look up hashes for the versions of packages
+   in your `spago.dhall`.
+
+   The output of `spago2nix generate` will be a `spago-packages.nix` file,
+   which contains pure derivations for each package dependency, and which you
+   should check into source control.
+
+3. In the Nix expression which describes how to build your project, import
+   the generated `spago-packages.nix` file to get the package dependencies.
+
+   ```nix
+   spagoPkgs = import ./spago-packages.nix { inherit pkgs; };
+   ```
+
+4. When describing the build steps, either use `spago2nix build` or
+   `spago build --no-install` or call to the compiler directly
+   with `purs compile "src/**/*.purs" ${spagoPackages.compilePaths}`.
+
+   Or do something like this:
+
+   ```nix
+   pkgs.stdenv.mkDerivation {
+     name = "myderiv";
+     buildInputs = [
+       spagoPkgs.installSpagoStyle
+       spagoPkgs.buildSpagoStyle
+       ];
+     nativeBuildInputs = with pkgs; [
+       easy-ps.purs-0_13_8
+       easy-ps.spago
+       ];
+     src = ./.;
+     unpackPhase = ''
+       cp $src/spago.dhall .
+       cp $src/packages.dhall .
+       cp -r $src/src .
+       install-spago-style
+       '';
+     buildPhase = ''
+       build-spago-style "./src/**/*.purs"
+       '';
+     installPhase = ''
+       mkdir $out
+       mv output $out/
+       '';
+     }
+   ```
+
+This has a key drawback: steps 2 and 3 really ought to be a single step.
+Because the `spago.dhall` file doesn't contain any cryptographic verification
+of the dependencies, we can't do this as a pure one-step derivation.
+
+
 ## Further Reading
 
 Here is a blog post I did about this project: <https://github.com/justinwoo/my-blog-posts/blob/master/posts/2019-06-22-spago2nix-why-and-how.md>
