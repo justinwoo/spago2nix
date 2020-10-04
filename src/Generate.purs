@@ -45,7 +45,7 @@ spagoListPackages = do
   error "getting packages.."
   output <- S.spawn
     { cmd: "spago"
-    , args: [ "ls", "packages", "-j" ]
+    , args: [ "ls", "deps", "--json", "--transitive" ]
     , stdin: Nothing
     }
     CP.defaultSpawnOptions
@@ -53,7 +53,7 @@ spagoListPackages = do
   case output.exit of
     CP.Normally 0 -> do
       let lines = words output.stdout
-      error $ "got " <> show (Array.length lines) <> " packages from Spago list-packages."
+      error $ "got " <> show (Array.length lines) <> " packages from spago ls deps."
       pure $ traverse readPackage lines
     e -> do
       error "Failed to list packages:"
