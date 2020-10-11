@@ -1,0 +1,50 @@
+{
+    "easy-dhall-nix": {
+        "branch": "master",
+        "description": "Derivations for easily downloading Dhall binaries and putting them to use.",
+        "homepage": "",
+        "owner": "justinwoo",
+        "repo": "easy-dhall-nix",
+        "rev": "3e9101c5dfd69a9fc28fe4998aff378f91bfcb64",
+        "sha256": "1nsn1n4sx4za6jipcid1293rdw8lqgj9097s0khiij3fz0bzhrg9",
+        "type": "tarball",
+        "url": "https://github.com/justinwoo/easy-dhall-nix/archive/3e9101c5dfd69a9fc28fe4998aff378f91bfcb64.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "easy-purescript-nix": {
+        "branch": "master",
+        "description": "Easy PureScript (and other tools) with Nix",
+        "homepage": "",
+        "owner": "justinwoo",
+        "repo": "easy-purescript-nix",
+        "rev": "7b1c1635e16c7f12065db2f8ec049030fcc63655",
+        "sha256": "1nybcann9aiwbvj95p6wam8xyhxwaxmfnkxmgylxcw42np2lvbzr",
+        "type": "tarball",
+        "url": "https://github.com/justinwoo/easy-purescript-nix/archive/7b1c1635e16c7f12065db2f8ec049030fcc63655.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "niv": {
+        "branch": "master",
+        "description": "Easy dependency management for Nix projects",
+        "homepage": "https://github.com/nmattia/niv",
+        "owner": "nmattia",
+        "repo": "niv",
+        "rev": "9d35b9e4837ab88517210b1701127612c260eccf",
+        "sha256": "0q50xhnm8g2yfyakrh0nly4swyygxpi0a8cb9gp65wcakcgvzvdh",
+        "type": "tarball",
+        "url": "https://github.com/nmattia/niv/archive/9d35b9e4837ab88517210b1701127612c260eccf.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "nixpkgs": {
+        "branch": "release-20.09",
+        "description": "Nix Packages collection",
+        "homepage": "",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "7a452bcceab1bf68cad6449a909c97936828d958",
+        "sha256": "07fwg80sn9pc7p8bmrz9y8kwfs18d55rl40a79hb8mwdv0w1aqjg",
+        "type": "tarball",
+        "url": "https://github.com/NixOS/nixpkgs/archive/7a452bcceab1bf68cad6449a909c97936828d958.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    }
+}
