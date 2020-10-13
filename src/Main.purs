@@ -12,8 +12,9 @@ import Data.Maybe (Maybe(Just, Nothing))
 import Effect (Effect)
 import Effect.Aff (Aff)
 import Effect.Aff as Aff
-import Effect.Class.Console (log)
+import Effect.Class.Console (error, log)
 import Generate as Generate
+import Node.ChildProcess (Exit(Normally, BySignal))
 import Simple.JSON as JSON
 
 foreign import argv :: Array String
@@ -49,12 +50,29 @@ generate extraArgs = do
 
 install :: List String -> Aff Unit
 install extraArgs = do
-  buildScript { attr: "installSpagoStyle", path: installPath, extraArgs }
-  runCommand { cmd: "bash", args: [installPath] }
-  log $ "Wrote install script to " <> installPath
-  exit 0
+  nixBuildResult <- buildScript { attr: "installSpagoStyle", path: installPath, extraArgs }
+  case nixBuildResult of
+    Normally 0 -> pure unit
+    Normally n -> do
+      error "Error: the 'spago2nix install' command failed to build the 'installSpagoStyle' Nix attribute"
+      exit n
+    BySignal s -> do
+      error $ "Error: the 'spago2nix install' command was killed by signal " <> show s <> " while building the 'installSpagoStyle' Nix attribute"
+      exit 1
+  installResult <- runCommand { cmd: installCmd, args: [] }
+  case installResult of
+    Normally 0 -> do
+      log $ "Wrote install script to " <> installPath
+      exit 0
+    Normally n -> do
+      error "Error: the 'spago2nix install' command failed"
+      exit n
+    BySignal s -> do
+      error $ "Error: the 'spago2nix install' command was killed by signal " <> show s
+      exit 1
   where
     installPath = ".spago2nix/install"
+    installCmd = installPath <> "/bin/install-spago-style"
 
 data BuildStyle
   = SpagoStyle
@@ -62,7 +80,15 @@ data BuildStyle
 
 build :: BuildStyle -> List String -> Aff Unit
 build buildStyle extraArgs = do
-  buildScript { attr: buildStyleAttr, path: buildPath, extraArgs }
+  nixBuildResult <- buildScript { attr: buildStyleAttr, path: buildPath, extraArgs }
+  case nixBuildResult of
+    Normally 0 -> pure unit
+    Normally n -> do
+      error $ "Error: the 'spago2nix build' command failed to failed to build the '" <> buildStyleAttr <> "' Nix attribute"
+      exit n
+    BySignal s -> do
+      error $ "Error: the 'spago2nix build' command nix-build of " <> buildStyleAttr <> " was killed by " <> show s
+      exit 1
   json <- runDhallToJSON (DhallExpr "(./spago.dhall).sources") <|> pure ""
   globs <- case JSON.readJSON json of
     Left _ -> do
@@ -73,11 +99,22 @@ build buildStyle extraArgs = do
     Right (xs :: Array String) -> do
       log $ "using sources from spago.dhall: " <> show xs
       pure xs
-  runCommand { cmd: "bash", args: [buildPath] <> globs }
-  log $ "Wrote build script to " <> buildPath
-  exit 0
+  buildResult <- runCommand { cmd: buildCmd, args: globs }
+  case buildResult of
+    Normally 0 -> do
+      log $ "Wrote build script to " <> buildPath
+      exit 0
+    Normally n -> do
+      error "Error: the 'spago2nix build' command failed"
+      exit n
+    BySignal s -> do
+      error $ "Error: the 'spago2nix build' command was killed by signal " <> show s
+      exit 1
   where
     buildPath = ".spago2nix/build"
+    buildCmd = buildPath <> case buildStyle of
+      SpagoStyle -> "/bin/build-spago-style"
+      NixStyle -> "/bin/build-from-store"
     buildStyleAttr = case buildStyle of
       SpagoStyle -> "buildSpagoStyle"
       NixStyle -> "buildFromNixStore"
