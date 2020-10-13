@@ -146,21 +146,21 @@ in {
   inherit inputs;
 
   installSpagoStyle = pkgs.writeShellScriptBin "install-spago-style" ''
-      #!/usr/bin/env bash
+      #!/usr/bin/env bash -e
       echo installing dependencies...
       ${builtins.toString (builtins.map cpPackage (builtins.attrValues inputs))}
       echo "echo done."
   '';
 
   buildSpagoStyle = pkgs.writeShellScriptBin "build-spago-style" ''
-      #!/usr/bin/env bash
+      #!/usr/bin/env bash -e
       echo building project...
       purs compile ${builtins.toString (builtins.map getGlob (builtins.attrValues inputs))} "$@"
       echo done.
   '';
 
   buildFromNixStore = pkgs.writeShellScriptBin "build-from-store" ''
-      #!/usr/bin/env bash
+      #!/usr/bin/env bash -e
       echo building project using sources from nix store...
       purs compile ${builtins.toString (
         builtins.map getStoreGlob (builtins.attrValues inputs))} "$@"

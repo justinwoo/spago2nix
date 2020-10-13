@@ -42,15 +42,16 @@ runDhallToJSON (DhallExpr expr) = do
         Aff.throwError $ Aff.error result.stderr
 
 -- | Run a command with args
-runCommand :: { cmd :: String, args :: Array String } -> Aff Unit
+runCommand :: { cmd :: String, args :: Array String } -> Aff CP.Exit
 runCommand {cmd, args} = Aff.makeAff \cb -> do
   cp <- CP.spawn cmd args CP.defaultSpawnOptions
     { stdio = CP.inherit
     }
-  CP.onExit cp \_ -> do
-    cb $ Right unit
+  CP.onExit cp \ex -> do
+    cb $ Right ex
+  CP.onError cp \err -> do
+    Aff.throwError $ CP.toStandardError err
   mempty
-
 
 buildScript
   :: forall f
@@ -59,7 +60,7 @@ buildScript
      , extraArgs :: f String
      , path :: String
      }
-  -> Aff Unit
+  -> Aff CP.Exit
 buildScript { attr, path, extraArgs } = do
   runCommand { cmd: "nix-build", args }
   where
