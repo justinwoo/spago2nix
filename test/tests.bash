@@ -1,6 +1,8 @@
 #! /usr/bin/env nix-shell
 #! nix-shell ../ci.nix -i bash
 
+set -e
+
 spago2nix
 spago2nix generate
 spago2nix install -j 100
