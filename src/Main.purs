@@ -13,7 +13,7 @@ import Effect.Class.Console (error, log)
 import Generate as Generate
 import Node.ChildProcess (Exit(Normally, BySignal))
 import Node.FS.Aff (realpath)
-import Options.Applicative (Parser, ParserInfo, argument, command, customExecParser, fullDesc, header, help, helper, hsubparser, info, int, long, many, metavar, prefs, progDesc, showDefault, showHelpOnEmpty, str, strOption, value, (<**>))
+import Options.Applicative (Parser, ParserInfo, ReadM, argument, command, customExecParser, fullDesc, header, help, helper, hsubparser, info, int, long, many, metavar, option, prefs, progDesc, readerError, showDefault, showHelpOnEmpty, str, value, (<**>))
 import Simple.JSON as JSON
 
 foreign import argv :: Array String
@@ -77,7 +77,8 @@ argParser = mainDesc $ hsubparser
       command <- subparsers
       cacheDir <- mainOpts
       in Args { command, cacheDir }
-    mainOpts = strOption
+    mainOpts =
+      option (nonempty str)
       (  long "cache-dir"
       <> metavar "DIR"
       <> value ".spago2nix"
@@ -89,12 +90,16 @@ argParser = mainDesc $ hsubparser
       (  metavar "EXTRA_ARGS..."
       <> help "passthrough args for nix-shell")
     spagoDhall =
-      strOption
+      option (nonempty str)
       (  long "spago-dhall"
       <> metavar "FILE"
       <> value "spago.dhall"
       <> showDefault
       <> help "the path to your spago.dhall" )
+    nonempty :: ReadM String -> ReadM String
+    nonempty reader = reader >>= case _ of
+      "" -> readerError "cannot be the empty string"
+      s -> pure s
 
 
 main :: Effect Unit
