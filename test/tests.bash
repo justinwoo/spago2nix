@@ -3,10 +3,22 @@
 
 set -e
 
-spago2nix
-spago2nix generate 8
-spago2nix install
-spago2nix build
-rm -rf output
-spago2nix build-nix
-nix-build build-project.nix
+function run () {
+  echo "$ $@" >&2
+  "$@"
+}
+
+run spago2nix --help
+run spago2nix generate 8
+run spago2nix install \
+  -- --arg pkgs '(import ./deps.nix {}).pkgs'
+run spago2nix build \
+  -- --arg pkgs '(import ./deps.nix {}).pkgs'
+run rm -rf output
+run spago2nix build-nix \
+  -- --arg pkgs '(import ./deps.nix {}).pkgs'
+run nix-build build-project.nix
+
+# check that the binary output was generated
+run nix-shell mkbin.nix
+run git diff --exit-code >/dev/null

@@ -1,0 +1,36 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.3.0] - Unreleased
+
+### Breaking Changes
+
+- The `install` and `build` commands take a nix argument list as their argv.
+  Since we switched to a command line parsing library, it needs to be split
+  from the spago2nix command with `--` now.
+
+  So if you previously had, for example,
+
+      spago2nix build --arg pkgs "import ./nixpkgs {}"
+
+  this now fails with an error like
+
+      invalid option `--arg`
+
+  and needs to be rewritten to
+
+      spago2nix build -- --arg pkgs "import ./nixpkgs {}"
+
+### Added
+
+- Global option `--cache-dir` to set the cache directory
+- `build` and `build-nix` option `--spago-dhall` to override the dhall entrypoint
+
+
+## [0.2.0] - 2019-06-16
+
+- Initial release

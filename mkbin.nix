@@ -4,7 +4,7 @@
 #     nix-shell mkbin.nix
 #
 
-{ pkgs ? import <nixpkgs> {}
+{ pkgs ? (import ./deps.nix {}).pkgs
 , nodejs ? pkgs.nodejs-10_x
 }:
 
