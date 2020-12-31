@@ -18,3 +18,7 @@ run rm -rf output
 run spago2nix build-nix \
   --arg pkgs '(import ./deps.nix {}).pkgs'
 run nix-build build-project.nix
+
+# check that the binary output was generated
+run nix-shell mkbin.nix
+run git diff --exit-code >/dev/null
