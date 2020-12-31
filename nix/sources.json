@@ -1,0 +1,26 @@
+{
+    "easy-dhall-nix": {
+        "branch": "master",
+        "description": "Derivations for easily downloading Dhall binaries and putting them to use.",
+        "owner": "justinwoo",
+        "repo": "easy-dhall-nix",
+        "sha256": "1y2x15v8a679vlpxazjpibfwajp6zph60f8wjcm4xflbvazk0dx7",
+        "url": "https://github.com/justinwoo/easy-dhall-nix/archive/eae7f64c4d6c70681e5a56c84198236930ba425e.tar.gz"
+    },
+    "easy-purescript-nix": {
+        "branch": "master",
+        "description": "Easy PureScript (and other tools) with Nix",
+        "owner": "justinwoo",
+        "repo": "easy-purescript-nix",
+        "sha256": "1ly3bm6i1viw6d64gi1zfiwdvjncm3963rj59320cr15na5bzjri",
+        "url": "https://github.com/justinwoo/easy-purescript-nix/archive/860a95cb9e1ebdf574cede2b4fcb0f66eac77242.tar.gz"
+    },
+    "nixpkgs": {
+        "branch": "release-20.03",
+        "description": "Nix Packages collection",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "sha256": "0zi54vbfi6i6i5hdd4v0l144y1c8rg6hq6818jjbbcnm182ygyfa",
+        "url": "https://github.com/NixOS/nixpkgs/archive/929768261a3ede470eafb58d5b819e1a848aa8bf.tar.gz"
+    }
+}
