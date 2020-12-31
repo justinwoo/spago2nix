@@ -13,7 +13,7 @@ import Effect.Aff as Aff
 import Effect.Class.Console (error, log)
 import Generate as Generate
 import Node.ChildProcess (Exit(Normally, BySignal))
-import Options.Applicative (ParserInfo, argument, command, customExecParser, fullDesc, header, help, helper, info, int, many, metavar, prefs, progDesc, showDefault, showHelpOnEmpty, str, hsubparser, value, (<**>))
+import Options.Applicative (Parser, ParserInfo, argument, command, customExecParser, fullDesc, header, help, helper, hsubparser, info, int, long, many, metavar, prefs, progDesc, showDefault, showHelpOnEmpty, str, strOption, value, (<**>))
 import Simple.JSON as JSON
 
 foreign import argv :: Array String
@@ -27,7 +27,12 @@ data Command
   | Build { extraArgs :: List String }
   | BuildNix { extraArgs :: List String }
 
-argParser :: ParserInfo Command
+data Args = Args {
+  command :: Command,
+  cacheDir :: String
+}
+
+argParser :: ParserInfo Args
 argParser = mainDesc $ hsubparser
   $ subcommand {
     cmd: "generate",
@@ -64,9 +69,21 @@ argParser = mainDesc $ hsubparser
     desc: "Build the project using dependency sources from Nix store."
   }
   where
-    mainDesc sub = info (sub <**> helper)
+    mainDesc :: Parser Command -> ParserInfo Args
+    mainDesc subparsers = info (mainParser subparsers <**> helper)
       (  fullDesc
       <> header "spago2nix - generate Nix derivations from packages required in a spago project, and allow for installing them and building them." )
+    mainParser :: Parser Command -> Parser Args
+    mainParser subparsers = ado
+      command <- subparsers
+      cacheDir <- mainOpts
+      in Args { command, cacheDir }
+    mainOpts :: Parser String
+    mainOpts = strOption
+      (  long "cache-dir"
+      <> metavar "DIR"
+      <> value ".spago2nix"
+      <> help "the cache directory spago2nix uses for intermediate outputs" )
     subcommand {cmd, opts, desc} = (command cmd (info opts (progDesc desc)))
     extraArgs =
       many $ argument str
@@ -76,14 +93,14 @@ argParser = mainDesc $ hsubparser
 main :: Effect Unit
 main = do
   let prefs' = prefs showHelpOnEmpty
-  customExecParser prefs' argParser >>= \cmd -> Aff.launchAff_ $ case cmd of
-    Generate { maxPackagesFetchedAtOnce } -> Generate.generate maxPackagesFetchedAtOnce
-    Install { extraArgs } -> install extraArgs
-    Build { extraArgs } -> build SpagoStyle extraArgs
-    BuildNix { extraArgs } -> build NixStyle extraArgs
+  customExecParser prefs' argParser >>= \(Args {cacheDir, command}) -> Aff.launchAff_ $ case command of
+    Generate { maxPackagesFetchedAtOnce } -> Generate.generate cacheDir maxPackagesFetchedAtOnce
+    Install { extraArgs } -> install cacheDir extraArgs
+    Build { extraArgs } -> build SpagoStyle cacheDir extraArgs
+    BuildNix { extraArgs } -> build NixStyle cacheDir extraArgs
 
-install :: List String -> Aff Unit
-install extraArgs = do
+install :: String -> List String -> Aff Unit
+install cacheDir extraArgs = do
   nixBuildResult <- buildScript { attr: "installSpagoStyle", path: installPath, extraArgs }
   case nixBuildResult of
     Normally 0 -> pure unit
@@ -105,15 +122,15 @@ install extraArgs = do
       error $ "Error: the 'spago2nix install' command was killed by signal " <> show s
       exit 1
   where
-    installPath = ".spago2nix/install"
+    installPath = cacheDir <> "/install"
     installCmd = installPath <> "/bin/install-spago-style"
 
 data BuildStyle
   = SpagoStyle
   | NixStyle
 
-build :: BuildStyle -> List String -> Aff Unit
-build buildStyle extraArgs = do
+build :: BuildStyle -> String -> List String -> Aff Unit
+build buildStyle cacheDir extraArgs = do
   nixBuildResult <- buildScript { attr: buildStyleAttr, path: buildPath, extraArgs }
   case nixBuildResult of
     Normally 0 -> pure unit
@@ -145,7 +162,7 @@ build buildStyle extraArgs = do
       error $ "Error: the 'spago2nix build' command was killed by signal " <> show s
       exit 1
   where
-    buildPath = ".spago2nix/build"
+    buildPath = cacheDir <> "/build"
     buildCmd = buildPath <> case buildStyle of
       SpagoStyle -> "/bin/build-spago-style"
       NixStyle -> "/bin/build-from-store"
