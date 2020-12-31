@@ -1,4 +1,4 @@
-{ pkgs ? import <nixpkgs> {} }:
+{ pkgs ? (import ./deps.nix {}).pkgs }:
 
 let
   easy-ps = import (
