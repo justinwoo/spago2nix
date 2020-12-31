@@ -3,7 +3,7 @@
 
 set -e
 
-spago2nix
+spago2nix --help
 spago2nix generate 8
 spago2nix install
 spago2nix build

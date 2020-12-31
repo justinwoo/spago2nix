@@ -5,16 +5,15 @@ import Prelude
 import Control.Alt ((<|>))
 import Core (DhallExpr(..), buildScript, exit, runCommand, runDhallToJSON)
 import Data.Either (Either(..))
-import Data.Int as Int
-import Data.List (List, (:))
+import Data.List (List)
 import Data.List as List
-import Data.Maybe (Maybe(Just, Nothing))
 import Effect (Effect)
 import Effect.Aff (Aff)
 import Effect.Aff as Aff
 import Effect.Class.Console (error, log)
 import Generate as Generate
 import Node.ChildProcess (Exit(Normally, BySignal))
+import Options.Applicative (ParserInfo, argument, command, customExecParser, fullDesc, header, help, helper, info, int, many, metavar, prefs, progDesc, showDefault, showHelpOnEmpty, str, hsubparser, value, (<**>))
 import Simple.JSON as JSON
 
 foreign import argv :: Array String
@@ -22,31 +21,66 @@ foreign import argv :: Array String
 args :: List String
 args = List.drop 2 $ List.fromFoldable argv
 
-main :: Effect Unit
-main = Aff.launchAff_ do
-  case args of
-    "generate" : rest -> generate rest
-    "install" : rest -> install rest
-    "build" : rest -> build SpagoStyle rest
-    "build-nix" : rest -> build NixStyle rest
-    "help" : rest -> log help
-    List.Nil -> log help
-    _ -> do
-      log $ "Unknown arguments: " <> List.intercalate " " args
+data Command
+  = Generate { maxPackagesFetchedAtOnce :: Int }
+  | Install { extraArgs :: List String }
+  | Build { extraArgs :: List String }
+  | BuildNix { extraArgs :: List String }
 
-generate :: List String -> Aff Unit
-generate extraArgs = do
-  case (parse extraArgs) of
-    Nothing -> do
-      log $ "Expected an integer, but got: " <> List.intercalate " " extraArgs
-      log $ "Specify the maximum number of packages to fetch simultaneously."
-      exit 1
-    Just n -> Generate.generate n
+argParser :: ParserInfo Command
+argParser = mainDesc $ hsubparser
+  $ subcommand {
+    cmd: "generate",
+    opts: (ado
+      maxPackagesFetchedAtOnce
+        <- argument int
+        (  metavar "N"
+        <> value 1
+        <> showDefault
+        <> help "Specify the maximum number of packages to fetch simultaneously.")
+      in Generate { maxPackagesFetchedAtOnce }
+    ),
+    desc: "Generate a Nix expression of packages from Spago. If N is given, it will limit the number of packages fetched at once."
+  }
+  <> subcommand {
+    cmd: "install",
+    opts: (ado
+      extraArgs <- extraArgs
+      in Install { extraArgs }),
+    desc: "Install dependencies from spago-packages.nix in Spago style."
+  }
+  <> subcommand {
+    cmd: "build",
+    opts: (ado
+      extraArgs <- extraArgs
+      in Build { extraArgs }),
+    desc: "Build the project Spago style."
+  }
+  <> subcommand {
+    cmd: "build-nix",
+    opts: (ado
+      extraArgs <- extraArgs
+      in BuildNix { extraArgs }),
+    desc: "Build the project using dependency sources from Nix store."
+  }
   where
-    parse :: List String -> Maybe Int
-    parse List.Nil = Just 0
-    parse (List.Cons arg List.Nil) = Int.fromString arg
-    parse _ = Nothing
+    mainDesc sub = info (sub <**> helper)
+      (  fullDesc
+      <> header "spago2nix - generate Nix derivations from packages required in a spago project, and allow for installing them and building them." )
+    subcommand {cmd, opts, desc} = (command cmd (info opts (progDesc desc)))
+    extraArgs =
+      many $ argument str
+      (  metavar "EXTRA_ARGS..."
+      <> help "passthrough args for nix-shell")
+
+main :: Effect Unit
+main = do
+  let prefs' = prefs showHelpOnEmpty
+  customExecParser prefs' argParser >>= \cmd -> Aff.launchAff_ $ case cmd of
+    Generate { maxPackagesFetchedAtOnce } -> Generate.generate maxPackagesFetchedAtOnce
+    Install { extraArgs } -> install extraArgs
+    Build { extraArgs } -> build SpagoStyle extraArgs
+    BuildNix { extraArgs } -> build NixStyle extraArgs
 
 install :: List String -> Aff Unit
 install extraArgs = do
@@ -119,19 +153,3 @@ build buildStyle extraArgs = do
       SpagoStyle -> "buildSpagoStyle"
       NixStyle -> "buildFromNixStore"
 
-help :: String
-help = """spago2nix - generate Nix derivations from packages required in a spago project, and allow for installing them and building them.
-
-  Usage: spago2nix (generate | install | build)
-
-Available commands:
-  generate [n]
-    Generate a Nix expression of packages from Spago. If n is
-    given, it will limit the number of packages fetched at once.
-  install [passthrough args for nix-shell]
-    Install dependencies from spago-packages.nix in Spago style
-  build [passthrough args for nix-shell]
-    Build the project Spago style
-  build-nix [passthrough args for nix-shell]
-    Build the project using dependency sources from Nix store
-"""
