@@ -2305,37 +2305,9 @@ var PS = {};
   var fromFoldable = function (dictFoldable) {
       return Data_Foldable.foldr(dictFoldable)(Data_List_Types.Cons.create)(Data_List_Types.Nil.value);
   };
-  var drop = function ($copy_v) {
-      return function ($copy_v1) {
-          var $tco_var_v = $copy_v;
-          var $tco_done = false;
-          var $tco_result;
-          function $tco_loop(v, v1) {
-              if (v < 1) {
-                  $tco_done = true;
-                  return v1;
-              };
-              if (v1 instanceof Data_List_Types.Nil) {
-                  $tco_done = true;
-                  return Data_List_Types.Nil.value;
-              };
-              if (v1 instanceof Data_List_Types.Cons) {
-                  $tco_var_v = v - 1 | 0;
-                  $copy_v1 = v1.value1;
-                  return;
-              };
-              throw new Error("Failed pattern match at Data.List (line 543, column 1 - line 543, column 42): " + [ v.constructor.name, v1.constructor.name ]);
-          };
-          while (!$tco_done) {
-              $tco_result = $tco_loop($tco_var_v, $copy_v1);
-          };
-          return $tco_result;
-      };
-  };
   exports["fromFoldable"] = fromFoldable;
   exports["null"] = $$null;
   exports["reverse"] = reverse;
-  exports["drop"] = drop;
   exports["span"] = span;
 })(PS);
 (function($PS) {
@@ -10664,6 +10636,13 @@ var PS = {};
           };
       };
   };
+  var realpath = function (path) {
+      return function (cb) {
+          return Node_FS_Internal.mkEffect(function (v) {
+              return fs.realpath(path, {}, handleCallback(cb));
+          });
+      };
+  };
   var writeFile = function (file) {
       return function (buff) {
           return function (cb) {
@@ -10695,6 +10674,7 @@ var PS = {};
           });
       };
   };
+  exports["realpath"] = realpath;
   exports["mkdir"] = mkdir;
   exports["readTextFile"] = readTextFile;
   exports["writeTextFile"] = writeTextFile;
@@ -10738,6 +10718,7 @@ var PS = {};
       };
   };                                        
   var writeTextFile = toAff3(Node_FS_Async.writeTextFile);
+  var realpath = toAff1(Node_FS_Async.realpath);
   var readTextFile = toAff2(Node_FS_Async.readTextFile);
   var mkdir = toAff1(Node_FS_Async.mkdir);      
   var exists = function (file) {
@@ -10750,6 +10731,7 @@ var PS = {};
           })()))(Effect_Aff.nonCanceler);
       });
   };
+  exports["realpath"] = realpath;
   exports["mkdir"] = mkdir;
   exports["readTextFile"] = readTextFile;
   exports["writeTextFile"] = writeTextFile;
@@ -15429,9 +15411,7 @@ var PS = {};
   var Control_Bind = $PS["Control.Bind"];
   var Core = $PS["Core"];
   var Data_Either = $PS["Data.Either"];
-  var Data_Foldable = $PS["Data.Foldable"];
   var Data_Functor = $PS["Data.Functor"];
-  var Data_List = $PS["Data.List"];
   var Data_List_Types = $PS["Data.List.Types"];
   var Data_Posix_Signal = $PS["Data.Posix.Signal"];
   var Data_Semigroup = $PS["Data.Semigroup"];
@@ -15441,6 +15421,7 @@ var PS = {};
   var Effect_Class_Console = $PS["Effect.Class.Console"];
   var Generate_1 = $PS["Generate"];
   var Node_ChildProcess = $PS["Node.ChildProcess"];
+  var Node_FS_Aff = $PS["Node.FS.Aff"];
   var Options_Applicative_Builder = $PS["Options.Applicative.Builder"];
   var Options_Applicative_Builder_Internal = $PS["Options.Applicative.Builder.Internal"];
   var Options_Applicative_Extra = $PS["Options.Applicative.Extra"];
@@ -15529,7 +15510,7 @@ var PS = {};
                           return Core.exit(1);
                       });
                   };
-                  throw new Error("Failed pattern match at Main (line 105, column 3 - line 112, column 13): " + [ nixBuildResult.constructor.name ]);
+                  throw new Error("Failed pattern match at Main (line 112, column 3 - line 119, column 13): " + [ nixBuildResult.constructor.name ]);
               })())(function () {
                   return Control_Bind.bind(Effect_Aff.bindAff)(Core.runCommand({
                       cmd: installCmd,
@@ -15550,7 +15531,7 @@ var PS = {};
                               return Core.exit(1);
                           });
                       };
-                      throw new Error("Failed pattern match at Main (line 114, column 3 - line 123, column 13): " + [ installResult.constructor.name ]);
+                      throw new Error("Failed pattern match at Main (line 121, column 3 - line 130, column 13): " + [ installResult.constructor.name ]);
                   });
               });
           });
@@ -15558,7 +15539,7 @@ var PS = {};
   };
   var build = function (buildStyle) {
       return function (cacheDir) {
-          return function (extraArgs) {
+          return function (args) {
               var buildStyleAttr = (function () {
                   if (buildStyle instanceof SpagoStyle) {
                       return "buildSpagoStyle";
@@ -15566,7 +15547,7 @@ var PS = {};
                   if (buildStyle instanceof NixStyle) {
                       return "buildFromNixStore";
                   };
-                  throw new Error("Failed pattern match at Main (line 169, column 22 - line 171, column 38): " + [ buildStyle.constructor.name ]);
+                  throw new Error("Failed pattern match at Main (line 177, column 22 - line 179, column 38): " + [ buildStyle.constructor.name ]);
               })();
               var buildPath = cacheDir + "/build";
               var buildCmd = buildPath + (function () {
@@ -15576,12 +15557,12 @@ var PS = {};
                   if (buildStyle instanceof NixStyle) {
                       return "/bin/build-from-store";
                   };
-                  throw new Error("Failed pattern match at Main (line 166, column 29 - line 168, column 42): " + [ buildStyle.constructor.name ]);
+                  throw new Error("Failed pattern match at Main (line 174, column 29 - line 176, column 42): " + [ buildStyle.constructor.name ]);
               })();
               return Control_Bind.bind(Effect_Aff.bindAff)(Core.buildScript(Data_List_Types.foldableList)({
                   attr: buildStyleAttr,
                   path: buildPath,
-                  extraArgs: extraArgs
+                  extraArgs: args.extraArgs
               }))(function (nixBuildResult) {
                   return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)((function () {
                       if (nixBuildResult instanceof Node_ChildProcess.Normally && nixBuildResult.value0 === 0) {
@@ -15597,45 +15578,47 @@ var PS = {};
                               return Core.exit(1);
                           });
                       };
-                      throw new Error("Failed pattern match at Main (line 135, column 3 - line 142, column 13): " + [ nixBuildResult.constructor.name ]);
+                      throw new Error("Failed pattern match at Main (line 142, column 3 - line 149, column 13): " + [ nixBuildResult.constructor.name ]);
                   })())(function () {
-                      return Control_Bind.bind(Effect_Aff.bindAff)(Control_Alt.alt(Effect_Aff.altAff)(Core.runDhallToJSON("(./spago.dhall).sources"))(Control_Applicative.pure(Effect_Aff.applicativeAff)("")))(function (json) {
-                          return Control_Bind.bind(Effect_Aff.bindAff)((function () {
-                              var v = Simple_JSON.readJSON(Simple_JSON.readArray(Simple_JSON.readString))(json);
-                              if (v instanceof Data_Either.Left) {
-                                  return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)(Effect_Class_Console.log(Effect_Aff.monadEffectAff)("failed to read sources from spago.dhall using dhall-to-json."))(function () {
-                                      return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)(Effect_Class_Console.log(Effect_Aff.monadEffectAff)("using default glob: " + "src/**/*.purs"))(function () {
-                                          return Control_Applicative.pure(Effect_Aff.applicativeAff)([ "src/**/*.purs" ]);
+                      return Control_Bind.bind(Effect_Aff.bindAff)(Node_FS_Aff.realpath(args.spagoDhall))(function (absSpagoDhall) {
+                          return Control_Bind.bind(Effect_Aff.bindAff)(Control_Alt.alt(Effect_Aff.altAff)(Core.runDhallToJSON("(" + (absSpagoDhall + ").sources")))(Control_Applicative.pure(Effect_Aff.applicativeAff)("")))(function (json) {
+                              return Control_Bind.bind(Effect_Aff.bindAff)((function () {
+                                  var v = Simple_JSON.readJSON(Simple_JSON.readArray(Simple_JSON.readString))(json);
+                                  if (v instanceof Data_Either.Left) {
+                                      return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)(Effect_Class_Console.log(Effect_Aff.monadEffectAff)("failed to read sources from " + (args.spagoDhall + " using dhall-to-json.")))(function () {
+                                          return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)(Effect_Class_Console.log(Effect_Aff.monadEffectAff)("using default glob: " + "src/**/*.purs"))(function () {
+                                              return Control_Applicative.pure(Effect_Aff.applicativeAff)([ "src/**/*.purs" ]);
+                                          });
                                       });
+                                  };
+                                  if (v instanceof Data_Either.Right) {
+                                      return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)(Effect_Class_Console.log(Effect_Aff.monadEffectAff)("using sources from " + (args.spagoDhall + (": " + Data_Show.show(Data_Show.showArray(Data_Show.showString))(v.value0)))))(function () {
+                                          return Control_Applicative.pure(Effect_Aff.applicativeAff)(v.value0);
+                                      });
+                                  };
+                                  throw new Error("Failed pattern match at Main (line 152, column 12 - line 160, column 14): " + [ v.constructor.name ]);
+                              })())(function (globs) {
+                                  return Control_Bind.bind(Effect_Aff.bindAff)(Core.runCommand({
+                                      cmd: buildCmd,
+                                      args: globs
+                                  }))(function (buildResult) {
+                                      if (buildResult instanceof Node_ChildProcess.Normally && buildResult.value0 === 0) {
+                                          return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)(Effect_Class_Console.log(Effect_Aff.monadEffectAff)("Wrote build script to " + buildPath))(function () {
+                                              return Core.exit(0);
+                                          });
+                                      };
+                                      if (buildResult instanceof Node_ChildProcess.Normally) {
+                                          return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)(Effect_Class_Console.error(Effect_Aff.monadEffectAff)("Error: the 'spago2nix build' command failed"))(function () {
+                                              return Core.exit(buildResult.value0);
+                                          });
+                                      };
+                                      if (buildResult instanceof Node_ChildProcess.BySignal) {
+                                          return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)(Effect_Class_Console.error(Effect_Aff.monadEffectAff)("Error: the 'spago2nix build' command was killed by signal " + Data_Show.show(Data_Posix_Signal.showSignal)(buildResult.value0)))(function () {
+                                              return Core.exit(1);
+                                          });
+                                      };
+                                      throw new Error("Failed pattern match at Main (line 162, column 3 - line 171, column 13): " + [ buildResult.constructor.name ]);
                                   });
-                              };
-                              if (v instanceof Data_Either.Right) {
-                                  return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)(Effect_Class_Console.log(Effect_Aff.monadEffectAff)("using sources from spago.dhall: " + Data_Show.show(Data_Show.showArray(Data_Show.showString))(v.value0)))(function () {
-                                      return Control_Applicative.pure(Effect_Aff.applicativeAff)(v.value0);
-                                  });
-                              };
-                              throw new Error("Failed pattern match at Main (line 144, column 12 - line 152, column 14): " + [ v.constructor.name ]);
-                          })())(function (globs) {
-                              return Control_Bind.bind(Effect_Aff.bindAff)(Core.runCommand({
-                                  cmd: buildCmd,
-                                  args: globs
-                              }))(function (buildResult) {
-                                  if (buildResult instanceof Node_ChildProcess.Normally && buildResult.value0 === 0) {
-                                      return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)(Effect_Class_Console.log(Effect_Aff.monadEffectAff)("Wrote build script to " + buildPath))(function () {
-                                          return Core.exit(0);
-                                      });
-                                  };
-                                  if (buildResult instanceof Node_ChildProcess.Normally) {
-                                      return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)(Effect_Class_Console.error(Effect_Aff.monadEffectAff)("Error: the 'spago2nix build' command failed"))(function () {
-                                          return Core.exit(buildResult.value0);
-                                      });
-                                  };
-                                  if (buildResult instanceof Node_ChildProcess.BySignal) {
-                                      return Control_Bind.discard(Control_Bind.discardUnit)(Effect_Aff.bindAff)(Effect_Class_Console.error(Effect_Aff.monadEffectAff)("Error: the 'spago2nix build' command was killed by signal " + Data_Show.show(Data_Posix_Signal.showSignal)(buildResult.value0)))(function () {
-                                          return Core.exit(1);
-                                      });
-                                  };
-                                  throw new Error("Failed pattern match at Main (line 154, column 3 - line 163, column 13): " + [ buildResult.constructor.name ]);
                               });
                           });
                       });
@@ -15644,12 +15627,12 @@ var PS = {};
           };
       };
   };
-  var args = Data_List.drop(2)(Data_List.fromFoldable(Data_Foldable.foldableArray)($foreign.argv));
   var argParser = (function () {
       var subcommand = function (v) {
           return Options_Applicative_Builder.command(v.cmd)(Options_Applicative_Builder.info(v.opts)(Options_Applicative_Builder.progDesc(v.desc)));
       };
-      var mainOpts = Options_Applicative_Builder.strOption(Data_Semigroup.append(Options_Applicative_Builder_Internal.modSemigroup)(Options_Applicative_Builder["long"](Options_Applicative_Builder_Internal.optionFieldsHasName)("cache-dir"))(Data_Semigroup.append(Options_Applicative_Builder_Internal.modSemigroup)(Options_Applicative_Builder.metavar(Options_Applicative_Builder_Internal.optionFieldsHasMetavar)("DIR"))(Data_Semigroup.append(Options_Applicative_Builder_Internal.modSemigroup)(Options_Applicative_Builder.value(Options_Applicative_Builder_Internal.optionFieldsHasValue)(".spago2nix"))(Options_Applicative_Builder.help("the cache directory spago2nix uses for intermediate outputs")))));
+      var spagoDhall = Options_Applicative_Builder.strOption(Data_Semigroup.append(Options_Applicative_Builder_Internal.modSemigroup)(Options_Applicative_Builder["long"](Options_Applicative_Builder_Internal.optionFieldsHasName)("spago-dhall"))(Data_Semigroup.append(Options_Applicative_Builder_Internal.modSemigroup)(Options_Applicative_Builder.metavar(Options_Applicative_Builder_Internal.optionFieldsHasMetavar)("FILE"))(Data_Semigroup.append(Options_Applicative_Builder_Internal.modSemigroup)(Options_Applicative_Builder.value(Options_Applicative_Builder_Internal.optionFieldsHasValue)("spago.dhall"))(Data_Semigroup.append(Options_Applicative_Builder_Internal.modSemigroup)(Options_Applicative_Builder.showDefault(Data_Show.showString))(Options_Applicative_Builder.help("the path to your spago.dhall"))))));
+      var mainOpts = Options_Applicative_Builder.strOption(Data_Semigroup.append(Options_Applicative_Builder_Internal.modSemigroup)(Options_Applicative_Builder["long"](Options_Applicative_Builder_Internal.optionFieldsHasName)("cache-dir"))(Data_Semigroup.append(Options_Applicative_Builder_Internal.modSemigroup)(Options_Applicative_Builder.metavar(Options_Applicative_Builder_Internal.optionFieldsHasMetavar)("DIR"))(Data_Semigroup.append(Options_Applicative_Builder_Internal.modSemigroup)(Options_Applicative_Builder.value(Options_Applicative_Builder_Internal.optionFieldsHasValue)(".spago2nix"))(Data_Semigroup.append(Options_Applicative_Builder_Internal.modSemigroup)(Options_Applicative_Builder.showDefault(Data_Show.showString))(Options_Applicative_Builder.help("the cache directory spago2nix uses for intermediate outputs"))))));
       var mainParser = function (subparsers) {
           return Control_Apply.apply(Options_Applicative_Types.parserApply)(Data_Functor.map(Options_Applicative_Types.parserFunctor)(function (v) {
               return function (v1) {
@@ -15682,19 +15665,25 @@ var PS = {};
           desc: "Install dependencies from spago-packages.nix in Spago style."
       }))(Data_Semigroup.append(Options_Applicative_Builder_Internal.modSemigroup)(subcommand({
           cmd: "build",
-          opts: Data_Functor.map(Options_Applicative_Types.parserFunctor)(function (v) {
-              return new Build({
-                  extraArgs: v
-              });
-          })(extraArgs),
+          opts: Control_Apply.apply(Options_Applicative_Types.parserApply)(Data_Functor.map(Options_Applicative_Types.parserFunctor)(function (v) {
+              return function (v1) {
+                  return new Build({
+                      extraArgs: v,
+                      spagoDhall: v1
+                  });
+              };
+          })(extraArgs))(spagoDhall),
           desc: "Build the project Spago style."
       }))(subcommand({
           cmd: "build-nix",
-          opts: Data_Functor.map(Options_Applicative_Types.parserFunctor)(function (v) {
-              return new BuildNix({
-                  extraArgs: v
-              });
-          })(extraArgs),
+          opts: Control_Apply.apply(Options_Applicative_Types.parserApply)(Data_Functor.map(Options_Applicative_Types.parserFunctor)(function (v) {
+              return function (v1) {
+                  return new BuildNix({
+                      extraArgs: v,
+                      spagoDhall: v1
+                  });
+              };
+          })(extraArgs))(spagoDhall),
           desc: "Build the project using dependency sources from Nix store."
       }))))));
   })();
@@ -15710,16 +15699,15 @@ var PS = {};
                   return install(v.value0.cacheDir)(v.value0.command.value0.extraArgs);
               };
               if (v.value0.command instanceof Build) {
-                  return build(SpagoStyle.value)(v.value0.cacheDir)(v.value0.command.value0.extraArgs);
+                  return build(SpagoStyle.value)(v.value0.cacheDir)(v.value0.command.value0);
               };
               if (v.value0.command instanceof BuildNix) {
-                  return build(NixStyle.value)(v.value0.cacheDir)(v.value0.command.value0.extraArgs);
+                  return build(NixStyle.value)(v.value0.cacheDir)(v.value0.command.value0);
               };
-              throw new Error("Failed pattern match at Main (line 96, column 89 - line 100, column 64): " + [ v.value0.command.constructor.name ]);
+              throw new Error("Failed pattern match at Main (line 103, column 89 - line 107, column 50): " + [ v.value0.command.constructor.name ]);
           })())();
       };
   })();
-  exports["args"] = args;
   exports["Generate"] = Generate;
   exports["Install"] = Install;
   exports["Build"] = Build;
