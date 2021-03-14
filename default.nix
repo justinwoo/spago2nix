@@ -28,28 +28,28 @@ in
 , spago ? (easy-purescript-nix pkgs).spago
 }:
 
-    pkgs.stdenv.mkDerivation {
-      name = "spago2nix";
+pkgs.stdenv.mkDerivation {
+  name = "spago2nix";
 
-      src = pkgs.nix-gitignore.gitignoreSource [ ".git" ] ./.;
+  src = pkgs.nix-gitignore.gitignoreSource [ ".git" ] ./.;
 
-      buildInputs = [ pkgs.makeWrapper ];
+  buildInputs = [ pkgs.makeWrapper ];
 
-      installPhase = ''
-        mkdir -p $out/bin
-        target=$out/bin/spago2nix
+  installPhase = ''
+    mkdir -p $out/bin
+    target=$out/bin/spago2nix
 
-        >>$target echo '#!${nodejs}/bin/node'
-        >>$target echo "require('$src/bin/output.js')";
+    >>$target echo '#!${nodejs}/bin/node'
+    >>$target echo "require('$src/bin/output.js')";
 
-        chmod +x $target
+    chmod +x $target
 
-        wrapProgram $target \
-          --prefix PATH : ${pkgs.lib.makeBinPath [
-        pkgs.coreutils
-        pkgs.nix-prefetch-git
-        spago
-        dhall-json
-      ]}
-      '';
-    }
+    wrapProgram $target \
+      --prefix PATH : ${pkgs.lib.makeBinPath [
+    pkgs.coreutils
+    pkgs.nix-prefetch-git
+    spago
+    dhall-json
+  ]}
+  '';
+}
