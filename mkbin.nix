@@ -4,32 +4,32 @@
 #     nix-shell mkbin.nix
 #
 
-{ pkgs ? import <nixpkgs> {}
+{ pkgs ? import <nixpkgs> { }
 , nodejs ? pkgs.nodejs-10_x
 }:
-
-  let
-    easy-purescript-nix = import (
+let
+  easy-purescript-nix = import
+    (
       pkgs.fetchFromGitHub {
         owner = "justinwoo";
         repo = "easy-purescript-nix";
-        rev = "1ec689df0adf8e8ada7fcfcb513876307ea34226";
-        sha256 = "12hk2zbjkrq2i5fs6xb3x254lnhm9fzkcxph0a7ngxyzfykvf4hi";
+        rev = "e00a54ca6bd0290e8301eff140d109c1f300e40d";
+        sha256 = "1yrnnpxkzs59ik5dj9v67ysn4viff775v24kizpl0ylf24c74928";
       }
     ) {
-      inherit pkgs;
-    };
+    inherit pkgs;
+  };
 
-  in
-    pkgs.mkShell {
-      nativeBuildInputs = [
-        easy-purescript-nix.purs
-        easy-purescript-nix.spago
-        nodejs
-      ];
-      shellHook = ''
-        npm install
-        npm run mkbin
-        exit 0
-      '';
-    }
+in
+pkgs.mkShell {
+  nativeBuildInputs = [
+    easy-purescript-nix.purs-0_13_8
+    easy-purescript-nix.spago
+    nodejs
+  ];
+  shellHook = ''
+    npm install
+    npm run mkbin
+    exit 0
+  '';
+}

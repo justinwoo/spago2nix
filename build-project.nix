@@ -5,8 +5,8 @@ let
     pkgs.fetchFromGitHub {
       owner = "justinwoo";
       repo = "easy-purescript-nix";
-      rev = "cc7196bff3fdb5957aabfe22c3fa88267047fe88";
-      sha256 = "1xfl7rnmmcm8qdlsfn3xjv91my6lirs5ysy01bmyblsl10y2z9iw";
+      rev = "e00a54ca6bd0290e8301eff140d109c1f300e40d";
+      sha256 = "1yrnnpxkzs59ik5dj9v67ysn4viff775v24kizpl0ylf24c74928";
     }
   ) {
     inherit pkgs;
@@ -20,5 +20,5 @@ in
 spago2nix.mkBuildProjectOutput {
   src = ./src;
 
-  purs = easy-ps.purs;
+  purs = easy-ps.purs-0_13_8;
 }
