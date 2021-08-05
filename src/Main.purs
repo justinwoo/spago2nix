@@ -41,12 +41,14 @@ generate extraArgs = do
       log $ "Expected an integer, but got: " <> List.intercalate " " extraArgs
       log $ "Specify the maximum number of packages to fetch simultaneously."
       exit 1
-    Just n -> Generate.generate n
+    Just n -> do
+      let spagoArgs = Generate.parseSpagoArgs extraArgs
+      Generate.generate n spagoArgs
   where
     parse :: List String -> Maybe Int
     parse List.Nil = Just 0
-    parse (List.Cons arg List.Nil) = Int.fromString arg
-    parse _ = Nothing
+    parse (List.Cons "--" _) = Just 0
+    parse (List.Cons arg _) = Int.fromString arg
 
 install :: List String -> Aff Unit
 install extraArgs = do
@@ -125,9 +127,10 @@ help = """spago2nix - generate Nix derivations from packages required in a spago
   Usage: spago2nix (generate | install | build)
 
 Available commands:
-  generate [n]
+  generate [n] [--] [pass-through spago args]
     Generate a Nix expression of packages from Spago. If n is
     given, it will limit the number of packages fetched at once.
+    Pass extra flags to Spago by specifying more after `--`.
   install [passthrough args for nix-shell]
     Install dependencies from spago-packages.nix in Spago style
   build [passthrough args for nix-shell]

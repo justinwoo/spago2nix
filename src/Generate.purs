@@ -9,7 +9,9 @@ import Core (FetchResult(..), MyError(..), NixPrefetchGitResult, Package, Repo(.
 import Data.Array as Array
 import Data.Bifunctor (lmap)
 import Data.Either (Either(..))
-import Data.Maybe (Maybe(..))
+import Data.List (List)
+import Data.List as List
+import Data.Maybe (Maybe(..), maybe)
 import Data.String as String
 import Data.Traversable (traverse, traverse_)
 import Data.Validation.Semigroup (V(..), toEither)
@@ -40,12 +42,12 @@ brokenRepoSHA = SHA256 "0sjjj9z1dhilhpc8pq4154czrb79z9cm044jvn75kxcjv6v5l2m5"
 --   "sha256": "0sjjj9z1dhilhpc8pq4154czrb79z9cm044jvn75kxcjv6v5l2m5",
 -- }
 
-spagoListPackages :: Aff (Either MyError (Array Package))
-spagoListPackages = do
+spagoListPackages :: Maybe SpagoArgs -> Aff (Either MyError (Array Package))
+spagoListPackages mSpagoArgs = do
   error "getting packages.."
   output <- S.spawn
     { cmd: "spago"
-    , args: [ "ls", "deps", "--json", "--transitive" ]
+    , args: [ "ls", "deps", "--json", "--transitive" ] <> spagoArgs
     , stdin: Nothing
     }
     CP.defaultSpawnOptions
@@ -60,6 +62,7 @@ spagoListPackages = do
       error output.stderr
       pure $ Left $ SpagoRunError (show e)
   where
+    spagoArgs = maybe [] unSpagoArgs mSpagoArgs
     words :: String -> Array String
     words = String.split (String.Pattern "\n") <<< String.trim
 
@@ -236,10 +239,10 @@ chunk n xs | n < 1     = [xs]
     chunk' acc [] = acc
     chunk' acc rest = chunk' (acc <> [Array.take n rest]) (Array.drop n rest)
 
-generate :: Int -> Aff Unit
-generate maxProcs = do
+generate :: Int -> Maybe SpagoArgs -> Aff Unit
+generate maxProcs mSpagoArgs = do
   ensureSetup
-  packages <- exitOnError spagoListPackages
+  packages <- exitOnError $ spagoListPackages mSpagoArgs
   fetches <- toResult <$> concatMapM (parTraverse ensureFetchPackage) (chunk maxProcs packages)
   case fetches of
     Left errors -> do
@@ -263,3 +266,16 @@ generate maxProcs = do
         Left e -> do
           error $ show e
           exit 1
+
+-- extra args we parse out to pass to spago if needed
+newtype SpagoArgs = SpagoArgs (List String)
+
+unSpagoArgs :: SpagoArgs -> Array String
+unSpagoArgs (SpagoArgs xs) = List.toUnfoldable xs
+
+parseSpagoArgs :: List String -> Maybe SpagoArgs
+parseSpagoArgs xs = go xs
+  where
+    go (List.Cons "--" rest) = Just $ SpagoArgs rest
+    go (List.Cons _ rest) = go rest
+    go List.Nil = Nothing
