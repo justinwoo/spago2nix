@@ -152,10 +152,6 @@ Here is a blog post I did about this project: <https://github.com/justinwoo/my-b
 
 ## Troubleshooting
 
-#### Can I get some manual support from you?
-
-Yes! Please consider supporting me through GitHub Sponsors and get in touch: <https://github.com/sponsors/justinwoo>
-
 #### I get `MissingRevOrRepoResult` on a package with branch name as a version
 
 Nix gives out the specific constant SHA256 hash for broken Git fetches, so the error is thrown. 
