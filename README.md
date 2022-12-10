@@ -50,13 +50,13 @@ When using in your own Nix derivation, the best practice is calling generated sc
 ```nix
 { pkgs, stdenv }:
 
-let 
+let
   spagoPkgs = import ./spago-packages.nix { inherit pkgs; };
 in
 pkgs.stdenv.mkDerivation rec {
   # < ... >
-  buildPhase = 
-  '' 
+  buildPhase =
+  ''
     ${spagoPkgs.installSpagoStyle} # == spago2nix install
     ${spagoPkgs.buildSpagoStyle}   # == spago2nix build
     ${spagoPkgs.buildFromNixStore} # == spago2nix build
@@ -145,6 +145,64 @@ This has a key drawback: steps 2 and 3 really ought to be a single step.
 Because the `spago.dhall` file doesn't contain any cryptographic verification
 of the dependencies, we can't do this as a pure one-step derivation.
 
+## 1-Step Workflow with `flake.nix`
+
+The 1-Step Workflow requires an impure Nix build.
+
+There is a `flake.nix` which provides a package for building a PureScript
+project in a Nix derivation. The package is a function
+named `spago2nix_nativeBuildInputs` which has a “type signature” like this:
+
+```nix
+{
+  spago-dhall ? "spago.dhall", # the main spago.dhall file name, i.e. "spago.dhall"
+  srcs-dhall # array of .dhall files, i.e. [./spago.dhall ./packages.dhall]
+}: []
+```
+
+The `spago2nix_nativeBuildInputs` function takes as inputs the PureScript
+project’s Spago `.dhall` files, and produces as output an array of
+derivations to include in a `nativeBuildInputs`. For a derivation which
+has those `nativeBuildInputs`, the PureScript project can be built
+in the `buildPhase` by executing `build-spago-style`.
+
+Example:
+
+```nix
+stdenv.mkDerivation {
+  name = "my-purescript-project";
+  nativeBuildInputs = [
+    easy-purescript-nix.purs
+  ] ++ (
+    spago2nix_nativeBuildInputs {
+      srcs-dhall = [./spago.dhall ./packages.dhall];
+    }
+  );
+  src = nixpkgs.nix-gitignore.gitignoreSource [ ".git" ] ./.;
+  unpackPhase = ''
+    cp -r $src/src .
+    cp -r $src/test .
+    install-spago-style
+    '';
+  buildPhase = ''
+    build-spago-style "./src/**/*.purs" "./test/**/*.purs"
+    '';
+  installPhase = ''
+    mkdir -p $out
+    mv output $out/
+    '';
+}
+```
+
+For another example, see [`test-flake/flake.nix`](test-flake/flake.nix)
+in this repository which shows how to build the __uint__ package.
+
+The `flake.nix` also has an `app` for running `spago2nix` off of Github,
+for example:
+
+```sh
+nix run github:justinwoo/spago2nix#spago2nix
+```
 
 ## Further Reading
 
@@ -154,8 +212,8 @@ Here is a blog post I did about this project: <https://github.com/justinwoo/my-b
 
 #### I get `MissingRevOrRepoResult` on a package with branch name as a version
 
-Nix gives out the specific constant SHA256 hash for broken Git fetches, so the error is thrown. 
-One of the causes for a broken fetch is wrong checkout revision. Nix supports fetches by commit hash and tags out of the box, but fails at plain branch names. 
+Nix gives out the specific constant SHA256 hash for broken Git fetches, so the error is thrown.
+One of the causes for a broken fetch is wrong checkout revision. Nix supports fetches by commit hash and tags out of the box, but fails at plain branch names.
 
 You can use more verbose reference `refs/heads/branch-name` at `packages.dhall` before generating a `.nix` file.
 However, __the branch name usage is discouraged in Spago__ ([refer to Note here](https://github.com/spacchetti/spago#override-a-package-in-the-package-set-with-a-remote-one)), it's better using a particular commit hash.
