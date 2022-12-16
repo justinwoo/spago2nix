@@ -5,7 +5,7 @@
 #
 
 { pkgs ? import <nixpkgs> { }
-, nodejs ? pkgs.nodejs-10_x
+, nodejs ? pkgs.nodejs-14_x
 }:
 let
   easy-purescript-nix = import
