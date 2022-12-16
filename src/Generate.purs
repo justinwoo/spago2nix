@@ -173,7 +173,7 @@ in {
   mkBuildProjectOutput =
     { src, purs }:
 
-    pkgs.stdenv.mkDerivation {
+    pkgs.stdenvNoCC.mkDerivation {
       name = "build-project-output";
       src = src;
 
@@ -211,7 +211,7 @@ printResult (Fetched
   <<< replace { from: "REV", to: rev }
   <<< replace { from: "SHA256", to: sha256 }
     $ """
-    "PKGNAME" = pkgs.stdenv.mkDerivation {
+    "PKGNAME" = pkgs.stdenvNoCC.mkDerivation {
         name = "PKGNAME";
         version = "VERSION";
         src = pkgs.fetchgit {
