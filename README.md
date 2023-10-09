@@ -1,10 +1,12 @@
 # Spago2Nix
 
-[![Build Status](https://travis-ci.com/justinwoo/spago2nix.svg?branch=master)](https://travis-ci.com/justinwoo/spago2nix)
-
 ![](./logo-256.png)
 
-Generate a derivation of Spago dependencies, and use them to install them into the directory structure used by Spago.
+Generate a derivation of (old) Spago dependencies, and use them to install them into the directory structure used by Spago.
+
+## Warning
+
+This is a project targeting the old versions of Spago and will not be updated to work with the newer versions. This repository remains here for you to read through and fork from, if needed.
 
 ## Installation
 
