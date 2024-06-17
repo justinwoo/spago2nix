@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> { }
 , easy-dhall-nix ? import ./nix/easy-dhall-nix.nix { inherit pkgs; }
 , dhall-json ? easy-dhall-nix.dhall-json-simple
-, nodejs ? pkgs.nodejs-10_x
+, nodejs ? pkgs.nodejs-14_x
 , easy-purescript-nix ? import ./nix/easy-purescript-nix.nix { inherit pkgs; }
 }:
 
